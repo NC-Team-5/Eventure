@@ -5,7 +5,8 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { app } from "../../firebaseConfig";
+import { app } from "../firebaseConfig";
+import { Link } from "expo-router";
 
 export default function SignInPage() {
   const [email, setEmail] = React.useState("Enter your email address");
@@ -66,6 +67,7 @@ export default function SignInPage() {
         placeholder="Choose display name"
       />
       <Button title="Sign Up" onPress={handleSubmit} />
+      <Link href="/">Back to Sign In</Link>
     </ParallaxScrollView>
   );
 }
