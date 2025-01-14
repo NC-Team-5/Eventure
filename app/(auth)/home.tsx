@@ -4,11 +4,14 @@ import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import Header from "../header";
+import EventList from "../../components/eventsList";
 
 export default function HomeScreen() {
   return (
-    <h1>Home screen</h1>
-    /*<{ ParallaxScrollView
+    <>
+      <h1>Home screen</h1>
+      {/* <{ ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
       headerImage={
         <Image
@@ -55,7 +58,11 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
-    </ParallaxScrollView> }*/
+    </ParallaxScrollView> } */}
+
+      <Header />
+      <EventList />
+    </>
   );
 }
 
