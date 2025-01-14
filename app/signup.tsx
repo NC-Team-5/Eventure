@@ -3,7 +3,7 @@ import React from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebaseConfig";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 
 export default function SignInPage() {
   const [email, setEmail] = React.useState("Enter your email address");
@@ -16,7 +16,7 @@ export default function SignInPage() {
       .then((userCredential) => {
         // Signed up
         const user = userCredential.user;
-        // ...
+        router.navigate('/(auth)/home')
       })
       .then((user) => {
         console.log(user, "<----user console");

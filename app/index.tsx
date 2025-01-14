@@ -23,6 +23,7 @@ export default function SignInPage() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         console.log("User is signed in:", user.email);
+        router.navigate('/home')
       } else {
         console.log("User is signed out");
       }
