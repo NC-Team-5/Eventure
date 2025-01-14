@@ -19,7 +19,6 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: "absolute",
           },
           default: {},
@@ -49,7 +48,16 @@ export default function TabLayout() {
         options={{
           title: "Sign Up",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="person.badge.plus" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="signin"
+        options={{
+          title: "Sign In",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="person.badge.plus" color={color} />
           ),
         }}
       />
