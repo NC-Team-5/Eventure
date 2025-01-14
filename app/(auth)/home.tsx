@@ -7,7 +7,8 @@ import { ThemedView } from "@/components/ThemedView";
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
+    <h1>Home screen</h1>
+    /*<{ ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
       headerImage={
         <Image
@@ -54,7 +55,7 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
-    </ParallaxScrollView>
+    </ParallaxScrollView> }*/
   );
 }
 

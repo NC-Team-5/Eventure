@@ -10,12 +10,15 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
-import { app } from "../../firebaseConfig";
+import { app } from "../firebaseConfig";
+import { useRouter, Link } from "expo-router";
 
 export default function SignInPage() {
   //State Management
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+
+  const router = useRouter();
 
   //Authentication State Listener
   React.useEffect(() => {
@@ -46,14 +49,14 @@ export default function SignInPage() {
   };
 
   //Sign Out Handler
-  const handleSignOut = () => {
+  /*   const handleSignOut = () => {
     const auth = getAuth(app);
     signOut(auth).then(() => {
       console.log("Successfully signed out");
       Alert.alert("Signed Out", "You have been signed out");
     });
   };
-
+ */
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
@@ -83,8 +86,8 @@ export default function SignInPage() {
         placeholder="Password"
         value={password}
       />
-      <Button title="Sign In" onPress={handleSignIn} />
-      <Button title="Sign Out" onPress={handleSignOut} />
+      <Button title="Log in" onPress={handleSignIn} />
+      <Link href="/signup">Sign Up</Link>
     </ParallaxScrollView>
   );
 }
