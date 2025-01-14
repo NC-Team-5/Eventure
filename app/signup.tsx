@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, Button } from "react-native";
+import { StyleSheet, TextInput, Button, Pressable } from "react-native";
 import React from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
@@ -16,7 +16,7 @@ export default function SignInPage() {
       .then((userCredential) => {
         // Signed up
         const user = userCredential.user;
-        router.navigate('/(auth)/home')
+        router.navigate("/(auth)/home");
       })
       .then((user) => {
         console.log(user, "<----user console");
@@ -51,7 +51,11 @@ export default function SignInPage() {
         placeholder="Choose display name"
       />
       <Button title="Sign Up" onPress={handleSubmit} />
-      <Link href="/">Back to Sign In</Link>
+      <Link href="/" asChild>
+        <Pressable>
+          <Button title="Back to Sign In" />
+        </Pressable>
+      </Link>
     </>
   );
 }
