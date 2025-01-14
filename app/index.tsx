@@ -23,7 +23,7 @@ export default function SignInPage() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         console.log("User is signed in:", user.email);
-        router.navigate('/home')
+        router.replace("/home");
       } else {
         console.log("User is signed out");
       }
@@ -46,15 +46,6 @@ export default function SignInPage() {
       });
   };
 
-  //Sign Out Handler
-  /*   const handleSignOut = () => {
-    const auth = getAuth(app);
-    signOut(auth).then(() => {
-      console.log("Successfully signed out");
-      Alert.alert("Signed Out", "You have been signed out");
-    });
-  };
- */
   return (
     <>
       <ThemedText>Sign in with your email and password.</ThemedText>
