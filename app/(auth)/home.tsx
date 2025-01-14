@@ -1,8 +1,8 @@
 import { StyleSheet } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { Text } from "react-native";
-// import Header from "../header";
-// import EventList from "../../components/eventsList";
+import Header from "../header";
+import EventList from "../../components/eventsList";
 import React from "react";
 
 export default function HomeScreen() {
@@ -10,11 +10,8 @@ export default function HomeScreen() {
     <>
       <ThemedText>Sign in with your email and password.</ThemedText>
       <Text>Hello</Text>
-
-      {/* <h1>Home screen</h1>
-    
       <Header />
-      <EventList /> */}
+      <EventList />
     </>
   );
 }

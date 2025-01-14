@@ -1,11 +1,11 @@
-
+import { Text } from "react-native";
 
 function Header() {
-    return (
-      <>
-      <h1>EVENTURE</h1>
-      </>
-    );
-  }
+  return (
+    <>
+      <Text>EVENTURE</Text>
+    </>
+  );
+}
 
-export default Header
+export default Header;
