@@ -6,7 +6,7 @@ import { View, Text } from "react-native";
 import EventCard from "./eventCard";
 
 const EventsList = () => {
-  const [events, setEvents] = useState<{ location: string; name: string; numOfGuests: number; date: Timestamp }[]>([]);
+  const [events, setEvents] = useState<{ id: number; location: string; name: string; numOfGuests: number; date: Timestamp }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,7 +18,8 @@ const EventsList = () => {
 
         // Collect event data
         const allEvents = querySnapshot.docs.map((doc) => ({
-          location: doc.data().location, // Ensure you have a unique identifier for each event
+          id: doc.data().id, // Ensure you have a unique identifier for each event
+          location: doc.data().location, 
           name: doc.data().name,
           numOfGuests: doc.data().numOfGuests,
           date: doc.data().date
@@ -56,9 +57,8 @@ const EventsList = () => {
 
   return (
     <View>
-      <Text >Events List</Text>
       {events.map((event) => (
-        <EventCard event={event} />
+        <EventCard event={event} key={event.id}/>
       ))}
     </View>
   );
