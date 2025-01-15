@@ -1,7 +1,12 @@
 import { StyleSheet, TextInput, Button, Pressable } from "react-native";
 import React from "react";
 import { ThemedText } from "@/components/ThemedText";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+} from "firebase/auth";
 import { app } from "../firebaseConfig";
 import { Link, router } from "expo-router";
 
@@ -16,10 +21,13 @@ export default function SignInPage() {
       .then((userCredential) => {
         // Signed up
         const user = userCredential.user;
-        router.navigate("/(auth)/home");
-      })
-      .then((user) => {
-        console.log(user, "<----user console");
+        updateProfile(user, {
+          displayName: displayName,
+        }).then(() => {
+          sendEmailVerification(user);
+          console.log(user, "<-----user");
+          router.navigate("/(auth)/profile");
+        });
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -44,6 +52,7 @@ export default function SignInPage() {
         onChangeText={setPassword}
         secureTextEntry={true}
         placeholder="Choose a password"
+        textContentType="newPassword"
       />
       <TextInput
         style={styles.input}
