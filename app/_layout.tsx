@@ -41,7 +41,7 @@ export default function RootLayout() {
         router.replace("/");
       }
     });
-  }, [user]);
+  }, [segments]);
 
   useEffect(() => {
     if (loaded) {
