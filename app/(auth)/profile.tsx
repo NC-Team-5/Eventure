@@ -16,6 +16,8 @@ import {
   updateProfile,
   updateEmail,
   sendPasswordResetEmail,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from "firebase/auth";
 import { app } from "../../firebaseConfig";
 import { router } from "expo-router";
@@ -26,14 +28,18 @@ export default function ProfileScreen() {
   const user = auth.currentUser;
 
   const [displayName, setDisplayName] = React.useState(user?.displayName);
-  const [emailAddress, setEmailAddress] = React.useState(user?.email);
-  const [newPassword, setNewPassword] = React.useState(null);
+  const [newEmailAddress, setNewEmailAddress] = React.useState(user?.email);
+
   const [selectedImage, setSelectedImage] = React.useState<string | undefined>(
     undefined
   );
   const [profilePic, setProfilePic] = React.useState(
     "../../assets/images/Profile_avatar_placeholder_large.png"
   );
+  const [displayReAuth, setDisplayReAuth] = React.useState(false);
+  //  const [currentEmail, setCurrentEmail] = React.useState(user?.email);
+  const [reAuthPassword, setReAuthPassword] = React.useState(null);
+  const [reAuth, setReAuthEmail] = React.useState(null);
 
   const handleDisplayNameChange = () => {
     updateProfile(user, {
@@ -48,15 +54,28 @@ export default function ProfileScreen() {
       });
   };
   const handleEmailChange = () => {
-    updateEmail(user, emailAddress)
+    updateEmail(auth.currentUser, newEmailAddress)
       .then(() => {
         console.log(user?.email, "<--your new email");
       })
       .catch((error) => {
-        // An error occurred
-        // ...
+        console.log(error, "<----error in updateEmail");
       });
   };
+
+  //Re-authentication handler when user changes email address
+  const handleReAuth = () => {
+    const credential = EmailAuthProvider.credential(user.email, reAuthPassword);
+    reauthenticateWithCredential(user, credential)
+      .then(() => {
+        console.log("Successfully authenticated");
+      })
+      .catch((error) => {
+        // An error ocurred
+        console.log(error, "Error with re-authentication");
+      });
+  };
+
   const handlePasswordChange = () => {
     sendPasswordResetEmail(auth, user?.email)
       .then(() => {
@@ -122,11 +141,43 @@ export default function ProfileScreen() {
           <ThemedText>Change your email address</ThemedText>
           <TextInput
             style={styles.input}
-            onChangeText={setEmailAddress}
-            value={emailAddress}
+            onChangeText={setNewEmailAddress}
+            value={newEmailAddress}
             textContentType="emailAddress"
           />
-          <Button title="Update email" onPress={handleEmailChange} />
+          <Button
+            title="Update email"
+            onPress={() => {
+              setDisplayReAuth(true);
+            }}
+          />
+
+          {
+            <View style={{ display: displayReAuth ? "flex" : "none" }}>
+              <ThemedText>
+                Please re-enter your login details to update your email address.
+              </ThemedText>
+              <TextInput
+                style={styles.input}
+                onChangeText={setReAuthEmail}
+                placeholder="Email address"
+              />
+              <TextInput
+                style={styles.input}
+                onChangeText={setReAuthPassword}
+                secureTextEntry={true}
+                placeholder="Password"
+              />
+              <Button
+                title="Submit login details"
+                onPress={() => {
+                  handleReAuth();
+                  handleEmailChange();
+                  setDisplayReAuth(false);
+                }}
+              />
+            </View>
+          }
         </View>
         <View>
           <ThemedText>Change your password</ThemedText>
