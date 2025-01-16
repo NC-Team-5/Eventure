@@ -19,9 +19,12 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
+import "firebase/storage";
+import * as firebase from "firebase/app";
 import { app } from "../../firebaseConfig";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import ImageViewer from "@/components/profilePage/ProfilePic";
 
 export default function ProfileScreen() {
   const auth = getAuth(app);
@@ -37,9 +40,75 @@ export default function ProfileScreen() {
     "../../assets/images/Profile_avatar_placeholder_large.png"
   );
   const [displayReAuth, setDisplayReAuth] = React.useState(false);
-  //  const [currentEmail, setCurrentEmail] = React.useState(user?.email);
   const [reAuthPassword, setReAuthPassword] = React.useState(null);
-  const [reAuth, setReAuthEmail] = React.useState(null);
+  const [reAuthEmail, setReAuthEmail] = React.useState(null);
+
+  const handleProfilePic = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    console.log(result, "<---result in handleProfilePic");
+
+    const { cancelled, uri, width, height, type } = result;
+
+    const uriToBlob = (uri) => {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          // return the blob
+          resolve(xhr.response);
+        };
+
+        xhr.onerror = function () {
+          // something went wrong
+          reject(new Error("uriToBlob failed"));
+        }; // this helps us get a blob
+        xhr.responseType = "blob";
+        xhr.open("GET", uri, true);
+
+        xhr.send(null);
+      });
+    };
+
+    const uploadToFirebase = (blob) => {
+      return new Promise((resolve, reject) => {
+        var storageRef = firebase.storage().ref();
+        storageRef
+          .child("uploads/photo.jpg")
+          .put(blob, {
+            contentType: "image/jpeg",
+          })
+          .then((snapshot) => {
+            blob.close();
+            resolve(snapshot);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    };
+
+    if (!result.canceled) {
+      console.log(result);
+
+      setSelectedImage(result.assets[0].uri);
+      updateProfile(user, {
+        photoURL: { imageURI },
+      })
+        .then(() => {
+          console.log("profile pic updated");
+        })
+        .catch((error) => {
+          // An error occurred
+          // ...
+        });
+    } else {
+      alert("You did not select any image.");
+    }
+  };
 
   const handleDisplayNameChange = () => {
     updateProfile(user, {
@@ -88,20 +157,6 @@ export default function ProfileScreen() {
       });
   };
 
-  const handleProfilePic = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      console.log(result);
-    } else {
-      alert("You did not select any image.");
-    }
-  };
-
   //Sign Out Handler
   const handleSignOut = () => {
     const auth = getAuth(app);
@@ -120,7 +175,10 @@ export default function ProfileScreen() {
       <View>
         <ThemedText>Change your profile pic</ThemedText>
         <View style={styles.imageContainer}>
-          <Image source={placeholderImage} style={styles.image} />
+          <ImageViewer
+            imgSource={placeholderImage}
+            selectedImage={selectedImage}
+          />
           <View>
             <Button title="Choose profile pic" onPress={handleProfilePic} />
           </View>
@@ -222,6 +280,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     flex: 1,
+    alignItems: "center",
   },
   image: {
     flex: 1,
