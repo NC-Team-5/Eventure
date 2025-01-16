@@ -1,4 +1,11 @@
-import { StyleSheet, TextInput, Button, Pressable } from "react-native";
+import {
+  StyleSheet,
+  TextInput,
+  Button,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import React from "react";
 import { ThemedText } from "@/components/ThemedText";
 import {
@@ -11,11 +18,12 @@ import { app } from "../firebaseConfig";
 import { Link, router } from "expo-router";
 
 export default function SignInPage() {
-  const [email, setEmail] = React.useState("Enter your email address");
-  const [password, setPassword] = React.useState("Choose a password");
-  const [displayName, setDisplayName] = React.useState("Choose a display name");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [displayName, setDisplayName] = React.useState("");
   const [errors, setErrors] = React.useState({});
   const [isFormValid, setIsFormValid] = React.useState(false);
+  const [showErrors, setShowErrors] = React.useState(false);
 
   React.useEffect(() => {
     // Trigger form validation when name,
@@ -26,23 +34,19 @@ export default function SignInPage() {
   const validateForm = () => {
     let errors = {};
 
-    // Validate name field
-    if (!displayName) {
-      errors.name = "Name is required.";
-    }
-
     // Validate email field
-    if (!email) {
-      errors.email = "Email is required.";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = "Email is invalid.";
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = "Enter a valid email address";
     }
 
     // Validate password field
-    if (!password) {
-      errors.password = "Password is required.";
-    } else if (password.length < 6) {
-      errors.password = "Password must be at least 6 characters.";
+    if (password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
+    }
+
+    // Validate name field
+    if (!displayName) {
+      errors.name = "Enter your display name";
     }
 
     // Set the errors and update form validity
@@ -72,23 +76,26 @@ export default function SignInPage() {
         });
     } else {
       // Form is invalid, display error messages
-      console.log("Form has errors. Please correct them.");
+      console.log("Please ensure the details you've entered are valid.");
     }
   };
   console.log(errors);
   return (
     <>
-      <ThemedText>
-        Enter an email address and password to get started.
-      </ThemedText>
+      <ThemedText>Enter your details to get started.</ThemedText>
       <TextInput
         style={styles.input}
-        onChangeText={setEmail}
+        onChangeText={(text) => {
+          setEmail(text);
+          setShowErrors(true);
+        }}
+        value={email}
         placeholder="Enter email address"
       />
       <TextInput
         style={styles.input}
         onChangeText={setPassword}
+        value={password}
         secureTextEntry={true}
         placeholder="Choose a password"
         textContentType="newPassword"
@@ -96,6 +103,7 @@ export default function SignInPage() {
       <TextInput
         style={styles.input}
         onChangeText={setDisplayName}
+        value={displayName}
         placeholder="Choose display name"
       />
       <Button title="Sign Up" onPress={handleSubmit} disabled={!isFormValid} />
@@ -104,6 +112,13 @@ export default function SignInPage() {
           <Button title="Back to Sign In" />
         </Pressable>
       </Link>
+      <View style={{ display: showErrors ? "flex" : "none" }}>
+        {Object.values(errors).map((error, index) => (
+          <Text key={index} style={styles.error}>
+            {error}
+          </Text>
+        ))}
+      </View>
     </>
   );
 }
@@ -124,5 +139,11 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     padding: 10,
+  },
+  error: {
+    color: "red",
+    fontSize: 14,
+    marginLeft: 12,
+    marginTop: 5,
   },
 });
