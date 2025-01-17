@@ -1,6 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useRouter, Link } from "expo-router";
 
 const EventCard = ({
   event,
@@ -22,8 +23,11 @@ const EventCard = ({
   const imageUrl =
     "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/AlexFace.png?alt=media&token=d76371d5-7676-464e-bb9d-35dc9a236db7";
 
+  const router = useRouter()
+
   const handlePress = () => {
     console.log("Pressed");
+    router.push(`/event`);
   };
 
   return (
@@ -62,7 +66,6 @@ const card = StyleSheet.create({
     alignItems: "center",
     borderColor: "#ccc",
     borderWidth: 1,
-    outlineColor: "#FFFFFF",
     backgroundColor: "#4CA19E",
     marginBottom: 20,
     padding: 5,
