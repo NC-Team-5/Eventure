@@ -18,6 +18,10 @@ const Photos = () => {
     setPhoto(newPhoto);
   };
 
+  const exitCamera = async () => {
+    console.log("Exited Camera");
+  };
+
   const handleGallery = () => {
     console.log("Pressed");
   };
@@ -39,13 +43,11 @@ const Photos = () => {
           <Image source={{ uri: imageUrl }} style={card.image} />
           <Image source={{ uri: imageUrl }} style={card.image} />
           <Image source={{ uri: imageUrl }} style={card.image} />
-          <Image source={{ uri: imageUrl }} style={card.image} />
         </View>
         <View>
           <View
             style={{
               justifyContent: "space-around",
-              marginLeft: 0,
               flexDirection: "row",
             }}
           >
@@ -66,31 +68,32 @@ const Photos = () => {
           </View>
         </View>
         {permission.granted && (
-          <View
-            style={{
-              width: "80%",
-              marginLeft: 0,
-              marginRight: 0,
-              marginBottom: 60,
-              aspectRatio: 1 / 1.6,
-            }}
-          >
-            <CameraView ref={cameraRef}>
+          <View>
+            <CameraView
+              ref={cameraRef}
+              style={{
+                width: "80%",
+                marginBottom: 30,
+                aspectRatio: 1 / 1.6,
+              }}
+            >
+              <TouchableOpacity
+                onPress={exitCamera}
+                style={{
+                  justifyContent: "center",
+                  marginHorizontal: "3%",
+                }}
+              >
+                <Ionicons name="exit" size={60} color="white" />
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={takePicture}
                 style={{
-                  backgroundColor: "#fff",
-                  width: "30%",
-                  height: "10%",
-                  justifyContent: "center",
-                  marginHorizontal: "35%",
-                  marginTop: "5%",
-                  borderRadius: 10,
+                  marginHorizontal: "37.5%",
+                  marginTop: "105%",
                 }}
               >
-                <Text style={{ textAlign: "center", padding: 1 }}>
-                  Take Picture
-                </Text>
+                <Ionicons name="radio-button-on" size={60} color="white" />
               </TouchableOpacity>
             </CameraView>
           </View>
@@ -105,33 +108,28 @@ export default Photos;
 const card = StyleSheet.create({
   box: {
     alignItems: "center",
-    borderColor: "#ccc",
-    borderWidth: 1,
     backgroundColor: "#4CA19E",
     marginBottom: 20,
     padding: 5,
     marginHorizontal: 35,
     borderRadius: 10,
 
-    // iOS Drop Shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
 
     flexDirection: "column",
-    flexWrap: "wrap",
     justifyContent: "space-between",
   },
   box2: {
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
-    textAlign: "center",
     borderRadius: 8,
-    padding: 12,
+    padding: 5,
     margin: 5,
     fontSize: 13,
-    width: 337.5,
+    width: "100%",
     flexDirection: "row",
     flexWrap: "wrap",
   },
@@ -140,9 +138,10 @@ const card = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
+    margin: 2,
 
-    width: 70,
-    height: 70,
+    width: 90,
+    height: 90,
     borderRadius: 10,
   },
   container: {

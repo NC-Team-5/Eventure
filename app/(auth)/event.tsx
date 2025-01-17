@@ -4,7 +4,7 @@ import { useState } from "react";
 import ItemList from "@/components/ItemList";
 import GuestList from "@/components/guestList";
 //import Map from "@/components/map";
-import Photos from "@/components/photo";
+import Photos from "@/components/camera";
 
 export default function Event() {
   //const route = useRoute();
