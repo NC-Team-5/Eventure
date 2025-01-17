@@ -112,6 +112,7 @@ export default function ProfileScreen() {
         <View style={styles.profileContainer}>
           <ThemedText>Change your Display Name</ThemedText>
           <TextInput
+            enablesReturnKeyAutomatically={true}
             style={styles.input}
             onChangeText={setDisplayName}
             value={displayName}
@@ -124,6 +125,8 @@ export default function ProfileScreen() {
         <View>
           <ThemedText>Change your email address</ThemedText>
           <TextInput
+            keyboardType="email-address"
+            enablesReturnKeyAutomatically={true}
             style={styles.input}
             onChangeText={setEmailAddress}
             value={emailAddress}
