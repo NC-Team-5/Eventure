@@ -7,11 +7,11 @@ const EventCard = ({
   event,
 }: {
   event: {
-    id: number;
     name: string;
     location: string;
     date: Timestamp;
     numOfGuests: number;
+    eventGuests: object;
   };
 }) => {
   const timestamp = event.date;
@@ -23,7 +23,7 @@ const EventCard = ({
   const imageUrl =
     "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/AlexFace.png?alt=media&token=d76371d5-7676-464e-bb9d-35dc9a236db7";
 
-  const router = useRouter()
+  const router = useRouter();
 
   const handlePress = () => {
     console.log("Pressed");

@@ -12,7 +12,7 @@ import {
   StyleSheet,
 } from "react-native";
 import * as Location from "expo-location";
-import DateTimePickerModal from "react-native-modal-datetime-picker"
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { db, auth } from "../../firebaseConfig";
 import {
   collection,
@@ -22,9 +22,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
-
 export default function EventCreation() {
-
   const [eventName, setEventName] = useState("");
   const [itemsList, setItemsList] = useState([]);
   const [newItem, setNewItem] = useState("");
@@ -50,28 +48,32 @@ export default function EventCreation() {
   };
 
   const getOrdinalSuffix = (day) => {
-    if (day > 3 && day < 21) return 'th';
+    if (day > 3 && day < 21) return "th";
     switch (day % 10) {
-      case 1: return "st";
-      case 2: return "nd";
-      case 3: return "rd";
-      default: return "th";
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
     }
-  }
+  };
 
   const formatDateWithOrdinal = (date) => {
-    const weekday = date.toLocaleString('en-GB', { weekday: 'short' });
-    const month = date.toLocaleString('en-GB', { month: 'long' });
+    const weekday = date.toLocaleString("en-GB", { weekday: "short" });
+    const month = date.toLocaleString("en-GB", { month: "long" });
     const day = date.getDate();
     const year = date.getFullYear();
-    const time = date.toLocaleString('en-GB', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+    const time = date.toLocaleString("en-GB", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
 
     return `${weekday} ${month} ${day}${getOrdinalSuffix(day)} ${year} @ ${time}`;
-  }
+  };
 
   const handleDateConfirm = (date) => {
     setSelectedDateTime(date);
@@ -105,7 +107,7 @@ export default function EventCreation() {
   };
 
   const submitEvent = async () => {
-    const collectionRef = collection(db, "test-events")
+    const collectionRef = collection(db, "test-events");
 
     // Event Data + upload
     const eventData = {
@@ -114,16 +116,21 @@ export default function EventCreation() {
       eventLocation: selectedLocation,
       eventHost: {
         hostUID: auth.currentUser?.uid,
-        hostName: auth.currentUser?.displayName
+        hostName: auth.currentUser?.displayName,
       },
-      eventGuests: []
-    }
+      eventGuests: [],
+    };
 
     if (eventName && selectedDateTime && selectedLocation) {
-      const eventDocRef = await addDoc(collectionRef, eventData)
+      const eventDocRef = await addDoc(collectionRef, eventData);
       // Items list upload
       if (itemsList.length > 0) {
-        const subCollectionRef = collection(db, "test-events", eventDocRef.id, "eventItems")
+        const subCollectionRef = collection(
+          db,
+          "test-events",
+          eventDocRef.id,
+          "eventItems"
+        );
 
         for (const item of itemsList) {
           await addDoc(subCollectionRef, {
@@ -138,14 +145,12 @@ export default function EventCreation() {
       setItemsList([]);
       setSelectedLocation(null);
       setSearchQuery("");
-
     }
-  }
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={{ padding: 50 }}>
-
         <Text style={{ fontSize: 32 }}>🎟️ Create Event</Text>
         <TextInput
           placeholder="Event Name"
@@ -220,12 +225,9 @@ export default function EventCreation() {
             ))}
           </View>
         )}
-        <Button
-          title="Create Event ✨"
-          onPress={submitEvent}
-        />
+        <Button title="Create Event ✨" onPress={submitEvent} />
       </View>
-    </TouchableWithoutFeedback >
+    </TouchableWithoutFeedback>
   );
 }
 
