@@ -7,6 +7,7 @@ import {
   TextInput,
   View,
   Image,
+  ScrollView,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import React from "react";
@@ -25,6 +26,7 @@ import { app } from "../../firebaseConfig";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import ImageViewer from "@/components/profilePage/ProfilePic";
+import ProfilePicSelect from "@/components/profilePage/ProfilePicSelect";
 
 export default function ProfileScreen() {
   const auth = getAuth(app);
@@ -42,73 +44,6 @@ export default function ProfileScreen() {
   const [displayReAuth, setDisplayReAuth] = React.useState(false);
   const [reAuthPassword, setReAuthPassword] = React.useState(null);
   const [reAuthEmail, setReAuthEmail] = React.useState(null);
-
-  const handleProfilePic = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    console.log(result, "<---result in handleProfilePic");
-
-    const { cancelled, uri, width, height, type } = result;
-
-    const uriToBlob = (uri) => {
-      return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-          // return the blob
-          resolve(xhr.response);
-        };
-
-        xhr.onerror = function () {
-          // something went wrong
-          reject(new Error("uriToBlob failed"));
-        }; // this helps us get a blob
-        xhr.responseType = "blob";
-        xhr.open("GET", uri, true);
-
-        xhr.send(null);
-      });
-    };
-
-    const uploadToFirebase = (blob) => {
-      return new Promise((resolve, reject) => {
-        var storageRef = firebase.storage().ref();
-        storageRef
-          .child("uploads/photo.jpg")
-          .put(blob, {
-            contentType: "image/jpeg",
-          })
-          .then((snapshot) => {
-            blob.close();
-            resolve(snapshot);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      });
-    };
-
-    if (!result.canceled) {
-      console.log(result);
-
-      setSelectedImage(result.assets[0].uri);
-      updateProfile(user, {
-        photoURL: { imageURI },
-      })
-        .then(() => {
-          console.log("profile pic updated");
-        })
-        .catch((error) => {
-          // An error occurred
-          // ...
-        });
-    } else {
-      alert("You did not select any image.");
-    }
-  };
 
   const handleDisplayNameChange = () => {
     updateProfile(user, {
@@ -168,86 +103,83 @@ export default function ProfileScreen() {
   };
 
   const placeholderImage = require("../../assets/images/Profile_avatar_placeholder_large.png");
-
   return (
     <>
-      <ThemedText>Welcome, {user?.displayName}</ThemedText>
-      <View>
-        <ThemedText>Change your profile pic</ThemedText>
-        <View style={styles.imageContainer}>
-          <ImageViewer
-            imgSource={placeholderImage}
-            selectedImage={selectedImage}
-          />
+      <ScrollView style={styles.scrollView}>
+        <ThemedText>Welcome, {user?.displayName}</ThemedText>
+        <View>
+          <View style={styles.profileContainer}>
+            <ProfilePicSelect auth={auth} user={user} />
+          </View>
+
+          <View style={styles.profileContainer}>
+            <ThemedText>Change your Display Name</ThemedText>
+            <TextInput
+              style={styles.input}
+              onChangeText={setDisplayName}
+              value={displayName}
+            />
+            <Button
+              title="Update display name"
+              onPress={handleDisplayNameChange}
+            />
+          </View>
           <View>
-            <Button title="Choose profile pic" onPress={handleProfilePic} />
+            <ThemedText>Change your email address</ThemedText>
+            <TextInput
+              style={styles.input}
+              onChangeText={setNewEmailAddress}
+              value={newEmailAddress}
+              textContentType="emailAddress"
+            />
+            <Button
+              title="Update email"
+              onPress={() => {
+                setDisplayReAuth(true);
+              }}
+            />
+
+            {
+              <View style={{ display: displayReAuth ? "flex" : "none" }}>
+                <ThemedText>
+                  Please re-enter your login details to update your email
+                  address.
+                </ThemedText>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={setReAuthEmail}
+                  placeholder="Email address"
+                  keyboardType="email-address"
+                />
+                <TextInput
+                  style={styles.input}
+                  onChangeText={setReAuthPassword}
+                  secureTextEntry={true}
+                  placeholder="Password"
+                />
+                <Button
+                  title="Submit login details"
+                  onPress={() => {
+                    handleReAuth();
+                    handleEmailChange();
+                    setDisplayReAuth(false);
+                  }}
+                />
+              </View>
+            }
+          </View>
+          <View>
+            <ThemedText>Change your password</ThemedText>
+            <Button
+              title="Send password reset email"
+              onPress={handlePasswordChange}
+            />
+          </View>
+          <View>
+            <Button title="Log out" onPress={handleSignOut} />
           </View>
         </View>
-        <View style={styles.profileContainer}>
-          <ThemedText>Change your Display Name</ThemedText>
-          <TextInput
-            style={styles.input}
-            onChangeText={setDisplayName}
-            value={displayName}
-          />
-          <Button
-            title="Update display name"
-            onPress={handleDisplayNameChange}
-          />
-        </View>
-        <View>
-          <ThemedText>Change your email address</ThemedText>
-          <TextInput
-            style={styles.input}
-            onChangeText={setNewEmailAddress}
-            value={newEmailAddress}
-            textContentType="emailAddress"
-          />
-          <Button
-            title="Update email"
-            onPress={() => {
-              setDisplayReAuth(true);
-            }}
-          />
-
-          {
-            <View style={{ display: displayReAuth ? "flex" : "none" }}>
-              <ThemedText>
-                Please re-enter your login details to update your email address.
-              </ThemedText>
-              <TextInput
-                style={styles.input}
-                onChangeText={setReAuthEmail}
-                placeholder="Email address"
-              />
-              <TextInput
-                style={styles.input}
-                onChangeText={setReAuthPassword}
-                secureTextEntry={true}
-                placeholder="Password"
-              />
-              <Button
-                title="Submit login details"
-                onPress={() => {
-                  handleReAuth();
-                  handleEmailChange();
-                  setDisplayReAuth(false);
-                }}
-              />
-            </View>
-          }
-        </View>
-        <View>
-          <ThemedText>Change your password</ThemedText>
-          <Button
-            title="Send password reset email"
-            onPress={handlePasswordChange}
-          />
-        </View>
-        <View>
-          <Button title="Log out" onPress={handleSignOut} />
-        </View>
-      </View>
+      </ScrollView>
     </>
   );
 }
@@ -287,5 +219,8 @@ const styles = StyleSheet.create({
     width: 250,
     height: 250,
     borderRadius: 18,
+  },
+  scrollView: {
+    paddingBottom: 10,
   },
 });
