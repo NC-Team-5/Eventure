@@ -63,6 +63,8 @@ export default function SignInPage() {
           const user = userCredential.user;
           updateProfile(user, {
             displayName: displayName,
+            photoURL:
+              "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/profilePics%2Fdefault-profile-pic.jpg?alt=media&token=5d369133-0ba9-4092-9f5a-cede053d990e",
           }).then(() => {
             sendEmailVerification(user);
             router.navigate("/(auth)/profile");
