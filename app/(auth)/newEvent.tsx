@@ -1,6 +1,8 @@
 import * as React from "react";
 import { useState } from "react";
 import {
+  Keyboard,
+  TouchableWithoutFeedback,
   TextInput,
   View,
   Text,
@@ -141,87 +143,89 @@ export default function EventCreation() {
   }
 
   return (
-    <View style={{ padding: 50 }}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={{ padding: 50 }}>
 
-      <Text style={{ fontSize: 32 }}>🎟️ Create Event</Text>
-      <TextInput
-        placeholder="Event Name"
-        maxLength={75}
-        onChangeText={(input) => setEventName(input)}
-      ></TextInput>
+        <Text style={{ fontSize: 32 }}>🎟️ Create Event</Text>
+        <TextInput
+          placeholder="Event Name"
+          maxLength={75}
+          onChangeText={(input) => setEventName(input)}
+        ></TextInput>
 
-      <Text style={{ fontSize: 32 }}>📋 Add Items</Text>
-      <TextInput
-        placeholder="Add Items"
-        maxLength={75}
-        returnKeyType="next"
-        enablesReturnKeyAutomatically={true}
-        onSubmitEditing={addItem}
-        value={newItem}
-        onChangeText={(input) => setNewItem(input)}
-      ></TextInput>
-      <FlatList
-        data={itemsList}
-        renderItem={({ item }) => <Text>{item}</Text>}
-      />
+        <Text style={{ fontSize: 32 }}>📋 Add Items</Text>
+        <TextInput
+          placeholder="Add Items"
+          maxLength={75}
+          returnKeyType="next"
+          enablesReturnKeyAutomatically={true}
+          onSubmitEditing={addItem}
+          value={newItem}
+          onChangeText={(input) => setNewItem(input)}
+        ></TextInput>
+        <FlatList
+          data={itemsList}
+          renderItem={({ item }) => <Text>{item}</Text>}
+        />
 
-      <Text style={{ fontSize: 32 }}>🗓️ Date & Time</Text>
-      <Text onPress={showDatePicker} style={styles.dateTimeText}>
-        {formatDateWithOrdinal(selectedDateTime)}
-      </Text>
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="datetime"
-        onConfirm={handleDateConfirm}
-        onCancel={hideDatePicker}
-        minimumDate={new Date()}
-      />
+        <Text style={{ fontSize: 32 }}>🗓️ Date & Time</Text>
+        <Text onPress={showDatePicker} style={styles.dateTimeText}>
+          {formatDateWithOrdinal(selectedDateTime)}
+        </Text>
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="datetime"
+          onConfirm={handleDateConfirm}
+          onCancel={hideDatePicker}
+          minimumDate={new Date()}
+        />
 
-      <Text style={{ fontSize: 32 }}>📍 Location</Text>
-      <TextInput
-        placeholder="Search for a location"
-        value={searchQuery}
-        onChangeText={searchLocations}
-        style={{
-          height: 44,
-          borderWidth: 1,
-          borderColor: "#ccc",
-          borderRadius: 5,
-          paddingHorizontal: 10,
-          marginBottom: 10,
-        }}
-      />
-      {searchResults.length > 0 && (
-        <View style={{ maxHeight: 200 }}>
-          {searchResults.map((result, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => {
-                const eventLocation = {
-                  latitude: result.latitude,
-                  longitude: result.longitude,
-                  fullAddress: `${result.name}, ${result.city}, ${result.postalCode}`,
-                };
-                setSelectedLocation(eventLocation);
-                setSearchQuery(`${result.street}, ${result.postalCode}`);
-                setSearchResults([]);
-              }}
-              style={{
-                padding: 10,
-                borderBottomWidth: 1,
-                borderColor: "#eee",
-              }}
-            >
-              <Text>{`${result.name}, ${result.city}, ${result.postalCode}`}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-      <Button
-        title="Create Event ✨"
-        onPress={submitEvent}
-      />
-    </View>
+        <Text style={{ fontSize: 32 }}>📍 Location</Text>
+        <TextInput
+          placeholder="Search for a location"
+          value={searchQuery}
+          onChangeText={searchLocations}
+          style={{
+            height: 44,
+            borderWidth: 1,
+            borderColor: "#ccc",
+            borderRadius: 5,
+            paddingHorizontal: 10,
+            marginBottom: 10,
+          }}
+        />
+        {searchResults.length > 0 && (
+          <View style={{ maxHeight: 200 }}>
+            {searchResults.map((result, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => {
+                  const eventLocation = {
+                    latitude: result.latitude,
+                    longitude: result.longitude,
+                    fullAddress: `${result.name}, ${result.city}, ${result.postalCode}`,
+                  };
+                  setSelectedLocation(eventLocation);
+                  setSearchQuery(`${result.street}, ${result.postalCode}`);
+                  setSearchResults([]);
+                }}
+                style={{
+                  padding: 10,
+                  borderBottomWidth: 1,
+                  borderColor: "#eee",
+                }}
+              >
+                <Text>{`${result.name}, ${result.city}, ${result.postalCode}`}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+        <Button
+          title="Create Event ✨"
+          onPress={submitEvent}
+        />
+      </View>
+    </TouchableWithoutFeedback >
   );
 }
 

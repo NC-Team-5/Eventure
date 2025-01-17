@@ -50,6 +50,7 @@ export default function SignInPage() {
     <>
       <ThemedText>Sign in with your email and password.</ThemedText>
       <TextInput
+        keyboardType="email-address"
         style={styles.input}
         onChangeText={setEmail}
         placeholder="Email address"
