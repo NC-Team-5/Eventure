@@ -20,6 +20,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
+
 export default function EventCreation() {
 
   const [eventName, setEventName] = useState("");
@@ -45,6 +46,30 @@ export default function EventCreation() {
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
   };
+
+  const getOrdinalSuffix = (day) => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  }
+
+  const formatDateWithOrdinal = (date) => {
+    const weekday = date.toLocaleString('en-GB', { weekday: 'short' });
+    const month = date.toLocaleString('en-GB', { month: 'long' });
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const time = date.toLocaleString('en-GB', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    return `${weekday} ${month} ${day}${getOrdinalSuffix(day)} ${year} @ ${time}`;
+  }
 
   const handleConfirm = (date) => {
     setSelectedDateTime(date);
@@ -112,8 +137,6 @@ export default function EventCreation() {
       setSearchQuery("");
 
     }
-
-
   }
 
   return (
@@ -143,7 +166,7 @@ export default function EventCreation() {
 
       <Text style={{ fontSize: 32 }}>🗓️ Date & Time</Text>
       <Text onPress={showDatePicker} style={styles.dateTimeText}>
-        {selectedDateTime.toLocaleString()}
+        {formatDateWithOrdinal(selectedDateTime)}
       </Text>
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
@@ -153,13 +176,6 @@ export default function EventCreation() {
         minimumDate={new Date()}
       />
 
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="datetime"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-        date={selectedDateTime}
-      />
       <Text style={{ fontSize: 32 }}>📍 Location</Text>
       <TextInput
         placeholder="Search for a location"
