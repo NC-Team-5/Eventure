@@ -53,6 +53,9 @@
     "react-native-screens": "~4.4.0",
     "react-native-stack": "^1.0.0-alpha11",
     "react-native-web": "~0.19.13",
+    "react-native-webview": "13.12.5",
+    "expo-image-picker": "~16.0.4",
+    "expo-image": "~2.0.4"
     "react-native-webview": "13.12.5"
   },
   "devDependencies": {
