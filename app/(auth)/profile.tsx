@@ -7,6 +7,7 @@ import {
   TextInput,
   View,
   Image,
+  ScrollView
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import React from "react";
@@ -20,6 +21,7 @@ import {
 import { app } from "../../firebaseConfig";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+
 
 export default function ProfileScreen() {
   const auth = getAuth(app);
@@ -97,6 +99,7 @@ export default function ProfileScreen() {
 
   return (
     <>
+    <ScrollView style={{ padding: 100 }}>
       <ThemedText>Welcome, {user?.displayName}</ThemedText>
       <View>
         <ThemedText>Change your profile pic</ThemedText>
@@ -139,6 +142,7 @@ export default function ProfileScreen() {
           <Button title="Log out" onPress={handleSignOut} />
         </View>
       </View>
+      </ScrollView>
     </>
   );
 }
