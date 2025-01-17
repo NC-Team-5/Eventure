@@ -38,9 +38,6 @@ export default function ProfileScreen() {
   const [selectedImage, setSelectedImage] = React.useState<string | undefined>(
     undefined
   );
-  const [profilePic, setProfilePic] = React.useState(
-    "../../assets/images/Profile_avatar_placeholder_large.png"
-  );
   const [displayReAuth, setDisplayReAuth] = React.useState(false);
   const [reAuthPassword, setReAuthPassword] = React.useState(null);
   const [reAuthEmail, setReAuthEmail] = React.useState(null);
@@ -50,7 +47,7 @@ export default function ProfileScreen() {
       displayName: displayName,
     })
       .then(() => {
-        console.log(user?.displayName, "<--your new username");
+        //Your new username
       })
       .catch((error) => {
         // An error occurred
@@ -60,10 +57,10 @@ export default function ProfileScreen() {
   const handleEmailChange = () => {
     updateEmail(auth.currentUser, newEmailAddress)
       .then(() => {
-        console.log(user?.email, "<--your new email");
+        //Your new email
       })
       .catch((error) => {
-        console.log(error, "<----error in updateEmail");
+        alert("Email address not updated, please try again.");
       });
   };
 
@@ -72,18 +69,20 @@ export default function ProfileScreen() {
     const credential = EmailAuthProvider.credential(user.email, reAuthPassword);
     reauthenticateWithCredential(user, credential)
       .then(() => {
-        console.log("Successfully authenticated");
+        // Successfully logged in
       })
       .catch((error) => {
         // An error ocurred
-        console.log(error, "Error with re-authentication");
+        alert("Sorry, we could not log you in. Please try again.");
       });
   };
 
   const handlePasswordChange = () => {
     sendPasswordResetEmail(auth, user?.email)
       .then(() => {
-        console.log("Password reset email sent");
+        alert(
+          "Your password reset email has been sent. Please check your email, including your spam folder."
+        );
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -97,7 +96,6 @@ export default function ProfileScreen() {
     const auth = getAuth(app);
     signOut(auth).then(() => {
       router.replace("/");
-      console.log("Successfully signed out");
       Alert.alert("Signed Out", "You have been signed out");
     });
   };
