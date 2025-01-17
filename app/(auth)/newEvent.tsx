@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
 import {
-  ScrollView,
   TextInput,
   View,
   Text,
@@ -10,17 +9,16 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import * as Location from "expo-location";
-import { app } from "../../firebaseConfig";
+import DateTimePickerModal from "react-native-modal-datetime-picker"
+import { db } from "../../firebaseConfig";
 import {
-  getFirestore,
   collection,
   addDoc,
   doc,
   setDoc,
+  onSnapshot,
 } from "firebase/firestore";
-import { nanoid } from "nanoid";
 
 export default function EventCreation() {
   const [eventName, setEventName] = useState("");
@@ -78,45 +76,29 @@ export default function EventCreation() {
   };
 
   const submitEvent = async () => {
-    const db = getFirestore(app);
-    const eventId = nanoid();
+    const collectionRef = collection(db, "events")
 
-    // Convert date to timestamp for Firestore
     const eventData = {
       eventName: eventName,
-      eventDate: selectedDateTime.toISOString(),
-      location: selectedLocation,
-      createdAt: new Date().toISOString(),
-    };
-
-    try {
-      console.log("Submitting event data:", eventData);
-
-      const newDocRef = doc(db, "events", eventId);
-      await setDoc(newDocRef, eventData);
-      console.log("Event created successfully with ID:", eventId);
-
-      // Add items as a subcollection
-      if (itemsList.length > 0) {
-        const itemsSubRef = collection(db, "events", eventId, "items");
-        for (const item of itemsList) {
-          await addDoc(itemsSubRef, { name: item });
-        }
-        console.log("Items added successfully");
-      }
-
-      // Clear form
-      setEventName("");
-      setItemsList([]);
-      setSelectedLocation(null);
-      setSearchQuery("");
-
-      alert("Event created successfully!");
-    } catch (error) {
-      console.log("Error creating event:", error);
-      alert("Failed to create event. Please try again.");
+      eventDate: selectedDateTime,
+      eventLocation: selectedLocation
     }
-  };
+    const eventDocRef = await addDoc(collectionRef, eventData)
+
+    if (itemsList.length > 0) {
+      const subCollectionRef = collection(db, "events", eventDocRef.id, "eventItems")
+
+      for (const item of itemsList) {
+        await addDoc(subCollectionRef, { name: item });
+      }
+    }
+
+    setEventName("");
+    setItemsList([]);
+    setSelectedLocation(null);
+    setSearchQuery("");
+
+  }
 
   return (
     <View style={{ padding: 50 }}>
