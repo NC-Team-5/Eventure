@@ -71,10 +71,11 @@ export default function EventCreation() {
     return `${weekday} ${month} ${day}${getOrdinalSuffix(day)} ${year} @ ${time}`;
   }
 
-  const handleConfirm = (date) => {
+  const handleDateConfirm = (date) => {
     setSelectedDateTime(date);
     hideDatePicker();
   };
+
   const searchLocations = async (text) => {
     setSearchQuery(text);
     if (text.length > 2) {
@@ -171,7 +172,7 @@ export default function EventCreation() {
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="datetime"
-        onConfirm={handleConfirm}
+        onConfirm={handleDateConfirm}
         onCancel={hideDatePicker}
         minimumDate={new Date()}
       />
