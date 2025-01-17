@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
-import { View, Text } from "react-native";
+import { View, Text, ScrollView} from "react-native";
 
 import EventCard from "./eventCard";
 
@@ -56,11 +56,11 @@ const EventsList = () => {
     );
 
   return (
-    <View>
+    <ScrollView>
       {events.map((event) => (
         <EventCard event={event} key={event.id}/>
       ))}
-    </View>
+    </ScrollView>
   );
 };
 
