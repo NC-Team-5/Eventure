@@ -221,6 +221,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   scrollView: {
-    paddingBottom: 10,
+    padding: 25,
+    marginBottom: 100,
   },
 });
