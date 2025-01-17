@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import * as Location from "expo-location";
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-import { db } from "../../firebaseConfig";
+import { db, auth } from "../../firebaseConfig";
 import {
   collection,
   addDoc,
@@ -21,6 +21,7 @@ import {
 } from "firebase/firestore";
 
 export default function EventCreation() {
+
   const [eventName, setEventName] = useState("");
   const [itemsList, setItemsList] = useState([]);
   const [newItem, setNewItem] = useState("");
@@ -76,43 +77,61 @@ export default function EventCreation() {
   };
 
   const submitEvent = async () => {
-    const collectionRef = collection(db, "events")
+    const collectionRef = collection(db, "test-events")
 
+    // Event Data + upload
     const eventData = {
       eventName: eventName,
       eventDate: selectedDateTime,
-      eventLocation: selectedLocation
+      eventLocation: selectedLocation,
+      eventHost: {
+        hostUID: auth.currentUser?.uid,
+        hostName: auth.currentUser?.displayName
+      },
+      eventGuests: []
     }
-    const eventDocRef = await addDoc(collectionRef, eventData)
 
-    if (itemsList.length > 0) {
-      const subCollectionRef = collection(db, "events", eventDocRef.id, "eventItems")
+    if (eventName && selectedDateTime && selectedLocation) {
+      const eventDocRef = await addDoc(collectionRef, eventData)
+      // Items list upload
+      if (itemsList.length > 0) {
+        const subCollectionRef = collection(db, "test-events", eventDocRef.id, "eventItems")
 
-      for (const item of itemsList) {
-        await addDoc(subCollectionRef, { name: item });
+        for (const item of itemsList) {
+          await addDoc(subCollectionRef, {
+            name: item,
+            addedBy: auth.currentUser?.displayName,
+            checkedBy: "",
+          });
+        }
       }
+
+      setEventName("");
+      setItemsList([]);
+      setSelectedLocation(null);
+      setSearchQuery("");
+
     }
 
-    setEventName("");
-    setItemsList([]);
-    setSelectedLocation(null);
-    setSearchQuery("");
 
   }
 
   return (
     <View style={{ padding: 50 }}>
-      <Text style={{ fontSize: 32 }}>Create Event</Text>
+
+      <Text style={{ fontSize: 32 }}>🎟️ Create Event</Text>
       <TextInput
         placeholder="Event Name"
         maxLength={75}
         onChangeText={(input) => setEventName(input)}
       ></TextInput>
-      <Text style={{ fontSize: 32 }}>Add Items</Text>
+
+      <Text style={{ fontSize: 32 }}>📋 Add Items</Text>
       <TextInput
         placeholder="Add Items"
         maxLength={75}
         returnKeyType="next"
+        enablesReturnKeyAutomatically={true}
         onSubmitEditing={addItem}
         value={newItem}
         onChangeText={(input) => setNewItem(input)}
@@ -121,11 +140,18 @@ export default function EventCreation() {
         data={itemsList}
         renderItem={({ item }) => <Text>{item}</Text>}
       />
-      <TouchableOpacity onPress={showDatePicker} style={styles.dateTimeButton}>
-        <Text style={styles.dateTimeText}>
-          {selectedDateTime.toLocaleString()}
-        </Text>
-      </TouchableOpacity>
+
+      <Text style={{ fontSize: 32 }}>🗓️ Date & Time</Text>
+      <Text onPress={showDatePicker} style={styles.dateTimeText}>
+        {selectedDateTime.toLocaleString()}
+      </Text>
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="datetime"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+        minimumDate={new Date()}
+      />
 
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
@@ -134,7 +160,7 @@ export default function EventCreation() {
         onCancel={hideDatePicker}
         date={selectedDateTime}
       />
-      <Text style={{ fontSize: 32 }}>Location</Text>
+      <Text style={{ fontSize: 32 }}>📍 Location</Text>
       <TextInput
         placeholder="Search for a location"
         value={searchQuery}
@@ -175,11 +201,8 @@ export default function EventCreation() {
         </View>
       )}
       <Button
-        title="Create Event"
-        onPress={() => {
-          console.log("Button pressed!");
-          submitEvent();
-        }}
+        title="Create Event ✨"
+        onPress={submitEvent}
       />
     </View>
   );
