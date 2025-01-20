@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera"; // Ensure you're using the `Camera` component
 import { useState, useRef } from "react";
 
 const Photos = () => {
@@ -36,7 +36,11 @@ const Photos = () => {
 
   if (isCameraActive) {
     return (
-      <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject}>
+
+      <CameraView
+        ref={cameraRef}
+        style={StyleSheet.absoluteFill}
+      >
         <View style={styles.cameraOverlay}>
           <TouchableOpacity onPress={exitCamera} style={styles.exitButton}>
             <Ionicons name="exit" size={60} color="white" />
@@ -46,6 +50,7 @@ const Photos = () => {
           </TouchableOpacity>
         </View>
       </CameraView>
+
     );
   }
 
@@ -105,12 +110,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   box2: {
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
     borderRadius: 8,
     padding: 5,
     margin: 5,
-    fontSize: 13,
     width: "100%",
     flexDirection: "row",
     flexWrap: "wrap",
@@ -149,3 +153,4 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
+
