@@ -1,73 +1,49 @@
-import React, { useState, useEffect } from "react";
-import { collection, getDocs, Timestamp } from "firebase/firestore";
+import React, { useState, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import { View, Text, ScrollView } from "react-native";
-
 import EventCard from "./eventCard";
 
 const EventsList = () => {
-  const [events, setEvents] = useState<
-    {
-      // id: number;
-      name: string;
-      location: string;
-      date: string;
-      numOfGuests: number;
-    }[]
-  >([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const eventsCollection = collection(db, "test-events"); // Replace "events" with your collection name
-        const querySnapshot = await getDocs(eventsCollection);
+  const fetchEvents = async () => {
+    try {
+      const eventsCollection = collection(db, "test-events");
+      const querySnapshot = await getDocs(eventsCollection);
+      const allEvents = querySnapshot.docs.map((doc) => ({
+        location: doc.data().eventLocation,
+        numOfGuests: doc.data().eventGuests.length,
+        date: new Date(doc.data().eventDate).toLocaleString(),
+        name: doc.data().eventName,
+        host: doc.data().eventHost.hostName,
+      }));
+      setEvents(allEvents);
+    } catch (err) {
+      console.error("Error fetching events:", err);
+      setError("Failed to fetch events");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        // Collect event data
-        const allEvents = querySnapshot.docs.map((doc) => ({
-          // Ensure you have a unique identifier for each event
-          location: doc.data().eventLocation,
-          numOfGuests: doc.data().eventGuests.length,
-          date: doc.data().eventDate,
-          name: doc.data().eventName,
-          host: doc.data().eventHost.hostName,
-        }));
-        setEvents(allEvents);
-      } catch (err) {
-        console.error("Error fetching documents:", err);
-        setError("Failed to fetch events");
-      } finally {
-        setLoading(false);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      fetchEvents();
+    }, [])
+  );
 
-    fetchEvents();
-  }, []);
-
-  if (loading)
-    return (
-      <View>
-        <Text>Loading...</Text>
-      </View>
-    );
-  if (error)
-    return (
-      <View>
-        <Text>{error}</Text>
-      </View>
-    );
-  if (events.length === 0)
-    return (
-      <View>
-        <Text>No events available</Text>
-      </View>
-    );
+  if (loading) return <Text>Loading...</Text>;
+  if (error) return <Text>{error}</Text>;
+  if (events.length === 0) return <Text>No events available</Text>;
 
   return (
     <ScrollView>
-      {events.map((event) => (
-        <EventCard event={event} />
+      {events.map((event, index) => (
+        <EventCard key={index} event={event} />
       ))}
     </ScrollView>
   );

@@ -112,7 +112,7 @@ export default function EventCreation() {
     // Event Data + upload
     const eventData = {
       eventName: eventName,
-      eventDate: selectedDateTime,
+      eventDate: selectedDateTime.toISOString(),
       eventLocation: selectedLocation,
       eventHost: {
         hostUID: auth.currentUser?.uid,
