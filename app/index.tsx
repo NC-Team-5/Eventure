@@ -1,12 +1,6 @@
-import { StyleSheet, TextInput, Button, Alert } from "react-native";
+import { View, StyleSheet, TextInput, Button, Alert, TouchableOpacity, Text, ScrollView } from "react-native";
 import React from "react";
-import { ThemedText } from "@/components/ThemedText";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut,
-} from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { app } from "../firebaseConfig";
 import { useRouter, Link } from "expo-router";
 
@@ -47,15 +41,24 @@ export default function SignInPage() {
   };
 
   return (
-    <>
-      <ThemedText>Sign in with your email and password.</ThemedText>
+    <View style={styles.container}>
+      <Text style={styles.title}>Welcome to Eventure</Text>
+
+
       <TextInput
         keyboardType="email-address"
+        autoComplete="email"
+        textContentType="emailAddress"
+        importantForAutofill="yes"
+        autoCapitalize="none"
+        autoCorrect={false}
         style={styles.input}
         onChangeText={setEmail}
         placeholder="Email address"
         value={email}
       />
+
+
       <TextInput
         style={styles.input}
         onChangeText={setPassword}
@@ -63,27 +66,56 @@ export default function SignInPage() {
         placeholder="Password"
         value={password}
       />
-      <Button title="Log in" onPress={handleSignIn} />
-      <Link href="/signup">Sign Up</Link>
-    </>
+
+
+      <TouchableOpacity onPress={handleSignIn} style={styles.button}>
+        <Text style={styles.buttonText}>Log in</Text>
+      </TouchableOpacity>
+
+
+      <Link href="/signup" style={styles.signupLink}>Don't have an account? Sign Up</Link>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: "#808080",
-    bottom: -90,
-    left: -35,
-    position: "absolute",
+  container: {
+    padding: 30,
+    backgroundColor: "#F9F9F9",
+    flexGrow: 1,
   },
-  titleContainer: {
-    flexDirection: "row",
-    gap: 8,
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#4CA19E",
+    marginBottom: 20,
   },
   input: {
-    height: 40,
-    margin: 12,
+    height: 44,
     borderWidth: 1,
-    padding: 10,
+    borderColor: "#4CA19E",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    fontSize: 16,
+    color: "#333",
+  },
+  button: {
+    backgroundColor: "#4CA19E",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  signupLink: {
+    fontSize: 16,
+    color: "#4CA19E",
+    marginTop: 20,
+    textAlign: "center",
   },
 });

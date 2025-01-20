@@ -9,10 +9,11 @@ import {
   Button,
   FlatList,
   TouchableOpacity,
+  ScrollView,
   StyleSheet,
 } from "react-native";
 import * as Location from "expo-location";
-import DateTimePickerModal from "react-native-modal-datetime-picker"
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { db, auth } from "../../firebaseConfig";
 import {
   collection,
@@ -21,7 +22,6 @@ import {
   setDoc,
   onSnapshot,
 } from "firebase/firestore";
-
 
 export default function EventCreation() {
 
@@ -138,14 +138,12 @@ export default function EventCreation() {
       setItemsList([]);
       setSelectedLocation(null);
       setSearchQuery("");
-
     }
   }
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-
+      <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>🎟️ Create Event</Text>
 
         {/* Event Name */}
@@ -232,8 +230,8 @@ export default function EventCreation() {
         <TouchableOpacity onPress={submitEvent} style={styles.button}>
           <Text style={styles.buttonText}>Create Event ✨</Text>
         </TouchableOpacity>
-      </View>
-    </TouchableWithoutFeedback >
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -241,7 +239,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 30,
     backgroundColor: "#F9F9F9", // Light background to make the accents pop
-    flex: 1,
+    flexGrow: 1, // Ensure the content fills the screen even with minimal content
   },
   title: {
     fontSize: 32,
