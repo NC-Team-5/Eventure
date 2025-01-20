@@ -6,21 +6,18 @@ import {
   TextInput,
   View,
   Text,
-  Button,
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
 } from "react-native";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as Location from "expo-location";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { db, auth } from "../../firebaseConfig";
-import {
-  collection,
-  addDoc,
-  doc,
-  setDoc,
-  onSnapshot,
-} from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function EventCreation() {
   const [eventName, setEventName] = useState("");
@@ -36,6 +33,7 @@ export default function EventCreation() {
     if (newItem) {
       setItemsList([...itemsList, newItem]);
       setNewItem("");
+
     }
   };
 
@@ -148,101 +146,191 @@ export default function EventCreation() {
     }
   };
 
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={{ padding: 50 }}>
-        <Text style={{ fontSize: 32 }}>🎟️ Create Event</Text>
-        <TextInput
-          placeholder="Event Name"
-          maxLength={75}
-          onChangeText={(input) => setEventName(input)}
-        ></TextInput>
+  const renderItem = ({ item }) => <Text style={styles.item}>{item}</Text>;
 
-        <Text style={{ fontSize: 32 }}>📋 Add Items</Text>
-        <TextInput
-          placeholder="Add Items"
-          maxLength={75}
-          returnKeyType="next"
-          enablesReturnKeyAutomatically={true}
-          onSubmitEditing={addItem}
-          value={newItem}
-          onChangeText={(input) => setNewItem(input)}
-        ></TextInput>
-        <FlatList
-          data={itemsList}
-          renderItem={({ item }) => <Text>{item}</Text>}
-        />
-
-        <Text style={{ fontSize: 32 }}>🗓️ Date & Time</Text>
-        <Text onPress={showDatePicker} style={styles.dateTimeText}>
-          {formatDateWithOrdinal(selectedDateTime)}
-        </Text>
-        <DateTimePickerModal
-          isVisible={isDatePickerVisible}
-          mode="datetime"
-          onConfirm={handleDateConfirm}
-          onCancel={hideDatePicker}
-          minimumDate={new Date()}
-        />
-
-        <Text style={{ fontSize: 32 }}>📍 Location</Text>
-        <TextInput
-          placeholder="Search for a location"
-          value={searchQuery}
-          onChangeText={searchLocations}
-          style={{
-            height: 44,
-            borderWidth: 1,
-            borderColor: "#ccc",
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            marginBottom: 10,
+  const renderSearchResults = () => (
+    <View style={styles.searchResultsContainer}>
+      {searchResults.map((result, index) => (
+        <TouchableOpacity
+          key={index}
+          onPress={() => {
+            const eventLocation = {
+              latitude: result.latitude,
+              longitude: result.longitude,
+              fullAddress: `${result.name}, ${result.city}, ${result.postalCode}`,
+            };
+            setSelectedLocation(eventLocation);
+            setSearchQuery(`${result.street}, ${result.postalCode}`);
+            setSearchResults([]);
           }}
-        />
-        {searchResults.length > 0 && (
-          <View style={{ maxHeight: 200 }}>
-            {searchResults.map((result, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => {
-                  const eventLocation = {
-                    latitude: result.latitude,
-                    longitude: result.longitude,
-                    fullAddress: `${result.name}, ${result.city}, ${result.postalCode}`,
-                  };
-                  setSelectedLocation(eventLocation);
-                  setSearchQuery(`${result.street}, ${result.postalCode}`);
-                  setSearchResults([]);
-                }}
-                style={{
-                  padding: 10,
-                  borderBottomWidth: 1,
-                  borderColor: "#eee",
-                }}
-              >
-                <Text>{`${result.name}, ${result.city}, ${result.postalCode}`}</Text>
+          style={styles.searchResult}
+        >
+          <Text style={styles.searchResultText}>
+            {`${result.name}, ${result.city}, ${result.postalCode}`}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <KeyboardAwareScrollView
+            style={styles.container}
+            resetScrollToCoords={{ x: 0, y: 0 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: -20 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View>
+              {/* Event Name Input */}
+              <Text style={styles.sectionTitle}>🎟️ Create Event</Text>
+              <TextInput
+                style={styles.input}
+                autoCapitalize="words"
+                returnKeyType="next"
+                placeholder="Event Name"
+                maxLength={75}
+                onChangeText={(input) => setEventName(input)}
+              />
+
+              {/* Add Item Input */}
+              <Text style={styles.sectionTitle}>📋 Add Items</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Add Items"
+                autoCapitalize="words"
+                maxLength={75}
+                returnKeyType="next"
+                enablesReturnKeyAutomatically={true}
+                blurOnSubmit={false}
+                onSubmitEditing={addItem}
+                value={newItem}
+                onChangeText={(input) => setNewItem(input)}
+              />
+
+              {/* Items List (using FlatList) */}
+              {itemsList.length === 0 ? (
+                <Text style={styles.noItemsText}>No items added yet. Add some!</Text>
+              ) : (
+                <FlatList
+                  data={itemsList}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => `${item}-${index}`}
+                />
+              )}
+
+              {/* Date and Time */}
+              <Text style={styles.sectionTitle}>🗓️ Date & Time</Text>
+              <Text onPress={showDatePicker} style={styles.dateTimeText}>
+                {formatDateWithOrdinal(selectedDateTime)}
+              </Text>
+              <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="datetime"
+                onConfirm={handleDateConfirm}
+                onCancel={hideDatePicker}
+                minimumDate={new Date()}
+              />
+
+              {/* Location Search */}
+              <Text style={styles.sectionTitle}>📍 Location</Text>
+              <TextInput
+                placeholder="Search for a location"
+                value={searchQuery}
+                onChangeText={searchLocations}
+                style={styles.searchInput}
+              />
+              {renderSearchResults()}
+
+              {/* Submit Button */}
+              <TouchableOpacity onPress={submitEvent} style={styles.button}>
+                <Text style={styles.buttonText}>Create Event ✨</Text>
               </TouchableOpacity>
-            ))}
-          </View>
-        )}
-        <Button title="Create Event ✨" onPress={submitEvent} />
-      </View>
-    </TouchableWithoutFeedback>
+            </View>
+          </KeyboardAwareScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#F9F9F9",
+    flexGrow: 1,
   },
-  dateTimeButton: {
-    backgroundColor: "#f0f0f0",
-    padding: 15,
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#4CA19E",
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#4CA19E",
+    marginVertical: 10,
+  },
+  input: {
+    height: 44,
+    borderWidth: 1,
+    borderColor: "#4CA19E",
     borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    fontSize: 16,
+    color: "#333",
+  },
+  item: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 5,
   },
   dateTimeText: {
+    fontSize: 18,
+    color: "#4CA19E",
+    textDecorationLine: "underline",
+    marginBottom: 20,
+  },
+  searchInput: {
+    height: 44,
+    borderWidth: 1,
+    borderColor: "#4CA19E",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
     fontSize: 16,
+    color: "#333",
+  },
+  searchResultsContainer: {
+    maxHeight: 200,
+    marginBottom: 20,
+  },
+  searchResult: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+  },
+  searchResultText: {
+    fontSize: 14,
+    color: "#4CA19E",
+  },
+  button: {
+    backgroundColor: "#4CA19E",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

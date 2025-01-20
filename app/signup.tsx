@@ -1,65 +1,49 @@
-import {
-  StyleSheet,
-  TextInput,
-  Button,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
-import React from "react";
-import { ThemedText } from "@/components/ThemedText";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  updateProfile,
-} from "firebase/auth";
+import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert, SafeAreaView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { app } from "../firebaseConfig";
-import { Link, router } from "expo-router";
+import { useRouter } from "expo-router";
 
-export default function SignInPage() {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [displayName, setDisplayName] = React.useState("");
-  const [errors, setErrors] = React.useState({});
-  const [isFormValid, setIsFormValid] = React.useState(false);
-  const [showErrors, setShowErrors] = React.useState(false);
+export default function SignUpForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [errors, setErrors] = useState({});
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
 
-  React.useEffect(() => {
-    // Trigger form validation when name,
-    // email, or password changes
+  const router = useRouter();
+
+  useEffect(() => {
     validateForm();
   }, [displayName, email, password]);
 
   const validateForm = () => {
-    let errors = {};
+    const errors = {};
 
-    // Validate email field
     if (!/\S+@\S+\.\S+/.test(email)) {
       errors.email = "Enter a valid email address";
     }
 
-    // Validate password field
     if (password.length < 8) {
       errors.password = "Password must be at least 8 characters";
     }
 
-    // Validate name field
     if (!displayName) {
       errors.name = "Enter your display name";
     }
 
-    // Set the errors and update form validity
     setErrors(errors);
     setIsFormValid(Object.keys(errors).length === 0);
   };
 
   const handleSubmit = () => {
+    setShowErrors(true); // Show errors when trying to submit the form
+
     if (isFormValid) {
       const auth = getAuth(app);
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          // Signed up
           const user = userCredential.user;
           updateProfile(user, {
             displayName: displayName,
@@ -67,85 +51,122 @@ export default function SignInPage() {
               "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/profilePics%2Fdefault-profile-pic.jpg?alt=media&token=5d369133-0ba9-4092-9f5a-cede053d990e",
           }).then(() => {
             sendEmailVerification(user);
-            router.navigate("/(auth)/profile");
+            Alert.alert("Success!", "Account created. Please verify your email.");
+            router.replace("/home");
           });
         })
         .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          console.log(error);
-          // ..
+          console.log("Sign-up error:", error.message);
+          Alert.alert("Error", error.message);
         });
     } else {
-      // Form is invalid, display error messages
-      console.log("Please ensure the details you've entered are valid.");
+      Alert.alert("Invalid Details", "Please check the form for errors.");
     }
   };
-  console.log(errors);
+
   return (
-    <>
-      <ThemedText>Enter your details to get started.</ThemedText>
-      <TextInput
-        style={styles.input}
-        onChangeText={(text) => {
-          setEmail(text);
-          setShowErrors(true);
-        }}
-        value={email}
-        placeholder="Enter email address"
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        value={password}
-        secureTextEntry={true}
-        placeholder="Choose a password"
-        textContentType="newPassword"
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setDisplayName}
-        value={displayName}
-        placeholder="Choose display name"
-      />
-      <Button title="Sign Up" onPress={handleSubmit} disabled={!isFormValid} />
-      <Link href="/" asChild>
-        <Pressable>
-          <Button title="Back to Sign In" />
-        </Pressable>
-      </Link>
-      <View style={{ display: showErrors ? "flex" : "none" }}>
-        {Object.values(errors).map((error, index) => (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Create your account</Text>
+
+        <TextInput
+          keyboardType="email-address"
+          style={styles.input}
+          onChangeText={setEmail}
+          value={email}
+          placeholder="Enter email address"
+        />
+
+        <TextInput
+          style={styles.input}
+          onChangeText={setPassword}
+          value={password}
+          secureTextEntry
+          placeholder="Choose a password"
+        />
+
+        <TextInput
+          style={styles.input}
+          onChangeText={setDisplayName}
+          autoCapitalize="words"
+          value={displayName}
+          placeholder="Choose display name"
+        />
+
+        <TouchableOpacity
+          onPress={handleSubmit}
+          style={[styles.button, !isFormValid && styles.buttonDisabled]}
+          disabled={!isFormValid}
+        >
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+
+        {showErrors && Object.values(errors).map((error, index) => (
           <Text key={index} style={styles.error}>
             {error}
           </Text>
         ))}
+        <TouchableOpacity onPress={() => router.back()} style={styles.loginLink}>
+          <Text style={styles.loginLinkText}>Already have an account? Log In</Text>
+        </TouchableOpacity>
       </View>
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: "#808080",
-    bottom: -90,
-    left: -35,
-    position: "absolute",
+  container: {
+    padding: 30,
+    backgroundColor: "#F9F9F9",
+    flex: 1,
   },
-  titleContainer: {
-    flexDirection: "row",
-    gap: 8,
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#4CA19E",
+    marginBottom: 20,
+    textAlign: "center",
   },
   input: {
-    height: 40,
-    margin: 12,
+    height: 50,
     borderWidth: 1,
-    padding: 10,
+    borderColor: "#4CA19E",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    fontSize: 16,
+    color: "#333",
+  },
+  button: {
+    backgroundColor: "#4CA19E",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  buttonDisabled: {
+    backgroundColor: "#A0D3D0",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   error: {
     color: "red",
     fontSize: 14,
-    marginLeft: 12,
     marginTop: 5,
+  },
+  loginLink: {
+    fontSize: 16,
+    color: "#4CA19E",
+    marginTop: 20,
+    textAlign: "left",
+  },
+  loginLinkText: {
+    fontSize: 16,
+    color: "#4CA19E",
+    marginTop: 20,
+    textAlign: "left",
   },
 });

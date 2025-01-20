@@ -1,28 +1,19 @@
-import { StyleSheet, TextInput, Button, Alert } from "react-native";
+import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert, SafeAreaView } from "react-native";
 import React from "react";
-import { ThemedText } from "@/components/ThemedText";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut,
-} from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { app } from "../firebaseConfig";
 import { useRouter, Link } from "expo-router";
 
 export default function SignInPage() {
-  //State Management
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   const router = useRouter();
 
-  //Authentication State Listener
   React.useEffect(() => {
     const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log("User is signed in:", user.email);
         router.replace("/home");
       } else {
         console.log("User is signed out");
@@ -31,7 +22,6 @@ export default function SignInPage() {
     return unsubscribe;
   }, []);
 
-  //Sign In Handler
   const handleSignIn = () => {
     const auth = getAuth(app);
     signInWithEmailAndPassword(auth, email, password)
@@ -47,43 +37,92 @@ export default function SignInPage() {
   };
 
   return (
-    <>
-      <ThemedText>Sign in with your email and password.</ThemedText>
-      <TextInput
-        keyboardType="email-address"
-        style={styles.input}
-        onChangeText={setEmail}
-        placeholder="Email address"
-        value={email}
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        secureTextEntry={true}
-        placeholder="Password"
-        value={password}
-      />
-      <Button title="Log in" onPress={handleSignIn} />
-      <Link href="/signup">Sign Up</Link>
-    </>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Eventure</Text>
+        <Text style={styles.subtitle}>Plan your next event</Text>
+
+        <TextInput
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          style={styles.input}
+          onChangeText={setEmail}
+          placeholder="Email address"
+          value={email}
+        />
+
+        <TextInput
+          style={styles.input}
+          onChangeText={setPassword}
+          secureTextEntry
+          placeholder="Password"
+          value={password}
+        />
+
+        <TouchableOpacity onPress={handleSignIn} style={styles.button}>
+          <Text style={styles.buttonText}>Log in</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.navigate("/signup")} style={styles.signupLink}>
+          <Text style={styles.signupLinkText}>Don't have an account? Sign Up</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: "#808080",
-    bottom: -90,
-    left: -35,
-    position: "absolute",
+  container: {
+    padding: 30,
+    backgroundColor: "#F9F9F9",
+    flex: 1,
   },
-  titleContainer: {
-    flexDirection: "row",
-    gap: 8,
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#4CA19E",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 26,
+    fontWeight: "400",
+    color: "#4CA19E",
+    marginBottom: 20,
+    textAlign: "center",
   },
   input: {
-    height: 40,
-    margin: 12,
+    height: 50,
     borderWidth: 1,
-    padding: 10,
+    borderColor: "#4CA19E",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    fontSize: 16,
+    color: "#333",
+  },
+  button: {
+    backgroundColor: "#4CA19E",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  signupLink: {
+    fontSize: 16,
+    color: "#4CA19E",
+    marginTop: 20,
+    textAlign: "center",
+  },
+  signupLinkText: {
+    fontSize: 16,
+    color: "#4CA19E",
+    marginTop: 20,
+    textAlign: "left",
   },
 });
