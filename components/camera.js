@@ -1,11 +1,12 @@
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 const Photos = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState();
+  const [isCameraActive, setIsCameraActive] = useState(false);
   const cameraRef = useRef();
 
   const imageUrl =
@@ -13,99 +14,82 @@ const Photos = () => {
 
   const takePicture = async () => {
     console.log("Taking picture...");
-    let newPhoto = await cameraRef.current.takePictureAsync();
-    console.log("Picture taken", newPhoto);
-    setPhoto(newPhoto);
+    if (cameraRef.current) {
+      const newPhoto = await cameraRef.current.takePictureAsync();
+      console.log("Picture taken", newPhoto);
+      setPhoto(newPhoto);
+    }
   };
 
-  const exitCamera = async () => {
-    console.log("Exited Camera");
+  const exitCamera = () => {
+    console.log("Exiting Camera");
+    setIsCameraActive(false);
   };
 
   const handleGallery = () => {
     console.log("Pressed");
   };
 
-  useEffect(() => {
-    if (permission === null) {
-      requestPermission();
-    }
-  }, [permission, requestPermission]);
-
   if (permission === null) {
     return <View />;
   }
 
-  return (
-    <>
-      <View style={card.box}>
-        <View style={card.box2}>
-          <Image source={{ uri: imageUrl }} style={card.image} />
-          <Image source={{ uri: imageUrl }} style={card.image} />
-          <Image source={{ uri: imageUrl }} style={card.image} />
+  if (isCameraActive) {
+    return (
+      <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject}>
+        <View style={styles.cameraOverlay}>
+          <TouchableOpacity onPress={exitCamera} style={styles.exitButton}>
+            <Ionicons name="exit" size={60} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={takePicture} style={styles.captureButton}>
+            <Ionicons name="radio-button-on" size={60} color="white" />
+          </TouchableOpacity>
         </View>
-        <View>
-          <View
-            style={{
-              justifyContent: "space-around",
-              flexDirection: "row",
-            }}
-          >
-            <TouchableOpacity onPress={handleGallery} style={{ padding: 10 }}>
-              <Ionicons name="images" size={50} color="black" />
-            </TouchableOpacity>
+      </CameraView>
+    );
+  }
 
-            {!permission.granted && (
-              <View style={card.container}>
-                <TouchableOpacity
-                  onPress={requestPermission}
-                  style={{ padding: 10 }}
-                >
-                  <Ionicons name="camera" size={50} color="black" />
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
+  return (
+    <View style={styles.container}>
+      <View style={styles.box}>
+        <View style={styles.box2}>
+          <Image source={{ uri: imageUrl }} style={styles.image} />
+          <Image source={{ uri: imageUrl }} style={styles.image} />
+          <Image source={{ uri: imageUrl }} style={styles.image} />
         </View>
-        {permission.granted && (
-          <View>
-            <CameraView
-              ref={cameraRef}
-              style={{
-                width: "80%",
-                marginBottom: 30,
-                aspectRatio: 1 / 1.6,
-              }}
+        <View style={styles.iconRow}>
+          <TouchableOpacity onPress={handleGallery} style={styles.iconButton}>
+            <Ionicons name="images" size={50} color="black" />
+          </TouchableOpacity>
+          {!permission.granted ? (
+            <TouchableOpacity
+              onPress={requestPermission}
+              style={styles.iconButton}
             >
-              <TouchableOpacity
-                onPress={exitCamera}
-                style={{
-                  justifyContent: "center",
-                  marginHorizontal: "3%",
-                }}
-              >
-                <Ionicons name="exit" size={60} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={takePicture}
-                style={{
-                  marginHorizontal: "37.5%",
-                  marginTop: "105%",
-                }}
-              >
-                <Ionicons name="radio-button-on" size={60} color="white" />
-              </TouchableOpacity>
-            </CameraView>
-          </View>
-        )}
+              <Ionicons name="camera" size={50} color="black" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => setIsCameraActive(true)}
+              style={styles.iconButton}
+            >
+              <Ionicons name="camera" size={50} color="black" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-    </>
+    </View>
   );
 };
 
 export default Photos;
 
-const card = StyleSheet.create({
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   box: {
     alignItems: "center",
     backgroundColor: "#4CA19E",
@@ -113,12 +97,10 @@ const card = StyleSheet.create({
     padding: 5,
     marginHorizontal: 35,
     borderRadius: 10,
-
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
-
     flexDirection: "column",
     justifyContent: "space-between",
   },
@@ -139,17 +121,31 @@ const card = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 10,
     margin: 2,
-
     width: 90,
     height: 90,
     borderRadius: 10,
   },
-  container: {
-    flex: 1,
-    justifyContent: "center",
+  iconRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    marginTop: 20,
   },
-  message: {
-    textAlign: "center",
-    paddingBottom: 10,
+  iconButton: {
+    padding: 10,
+  },
+  cameraOverlay: {
+    flex: 1,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  exitButton: {
+    alignSelf: "flex-start",
+    marginTop: 22,
+    marginLeft: 20,
+  },
+  captureButton: {
+    alignSelf: "center",
+    marginBottom: 20,
   },
 });
