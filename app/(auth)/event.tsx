@@ -1,43 +1,35 @@
-import { ScrollView, Text, View, StyleSheet, Dimensions } from "react-native";
-import { useRoute } from "@react-navigation/native";
-import { useState } from "react";
+import { ScrollView, Text, View, StyleSheet } from "react-native";
 import ItemList from "@/components/ItemList";
 import GuestList from "@/components/guestList";
-//import Map from "@/components/map";
 import Photos from "@/components/camera";
 
 export default function Event() {
-  //const route = useRoute();
-  //const { id } = route.params
-
   return (
-    <>
-      <ScrollView>
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 30,
-            textAlign: "center",
-            padding: 20,
-          }}
-        >
-          Christians Funeral
-        </Text>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.title}>Christians Funeral</Text>
         <ItemList />
         <GuestList />
         <Photos />
         {/* <Map /> */}
       </ScrollView>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f8f8f8",
   },
-  map: {
-    width: Dimensions.get("window").width, // Makes the map full width
-    height: Dimensions.get("window").height, // Makes the map full height
+  scrollContent: {
+    flexGrow: 1,
+    marginBottom: 50,
+  },
+  title: {
+    fontWeight: "bold",
+    fontSize: 30,
+    textAlign: "center",
+    padding: 20,
   },
 });
