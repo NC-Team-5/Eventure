@@ -26,6 +26,8 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
 
 const ProfilePicSelect = () => {
   const auth = getAuth(app);
@@ -71,7 +73,7 @@ const ProfilePicSelect = () => {
           setSelectedImage(url);
         });
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   const updateProfilePic = (user, url) => {
@@ -80,8 +82,13 @@ const ProfilePicSelect = () => {
       displayName: user.displayName,
       photoURL: url,
     })
-      .then((result) => {
-        // Profile updated!
+      .then(() => {
+        const userDocRef = doc(db, "users", user.uid);
+        return setDoc(
+          userDocRef,
+          { photoUrl: url },
+          { merge: true }
+        );
       })
       .catch((error) => {
         alert("Could not change profile pic, please try again");
@@ -101,7 +108,7 @@ const ProfilePicSelect = () => {
           .then((blob) => {
             return uploadToFirebase(blob);
           })
-          .then((snapshot) => {})
+          .then((snapshot) => { })
           .catch((error) => {
             throw error;
           });
