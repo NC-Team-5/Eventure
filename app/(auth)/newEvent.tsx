@@ -144,16 +144,21 @@ export default function EventCreation() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={{ padding: 50 }}>
+      <View style={styles.container}>
 
-        <Text style={{ fontSize: 32 }}>🎟️ Create Event</Text>
+        <Text style={styles.title}>🎟️ Create Event</Text>
+
+        {/* Event Name */}
         <TextInput
+          style={styles.input}
           placeholder="Event Name"
           maxLength={75}
           onChangeText={(input) => setEventName(input)}
-        ></TextInput>
+        />
 
-        <Text style={{ fontSize: 32 }}>📋 Add Items</Text>
+        <Text style={styles.sectionTitle}>📋 Add Items</Text>
+
+        {/* Add Items */}
         <TextInput
           placeholder="Add Items"
           maxLength={75}
@@ -162,16 +167,23 @@ export default function EventCreation() {
           onSubmitEditing={addItem}
           value={newItem}
           onChangeText={(input) => setNewItem(input)}
-        ></TextInput>
-        <FlatList
-          data={itemsList}
-          renderItem={({ item }) => <Text>{item}</Text>}
+          style={styles.input}
         />
 
-        <Text style={{ fontSize: 32 }}>🗓️ Date & Time</Text>
+        {/* Items List */}
+        <FlatList
+          data={itemsList}
+          renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
+        />
+
+        <Text style={styles.sectionTitle}>🗓️ Date & Time</Text>
+
+        {/* Date & Time Display */}
         <Text onPress={showDatePicker} style={styles.dateTimeText}>
           {formatDateWithOrdinal(selectedDateTime)}
         </Text>
+
+        {/* Date Time Picker */}
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
           mode="datetime"
@@ -180,22 +192,19 @@ export default function EventCreation() {
           minimumDate={new Date()}
         />
 
-        <Text style={{ fontSize: 32 }}>📍 Location</Text>
+        <Text style={styles.sectionTitle}>📍 Location</Text>
+
+        {/* Location Search */}
         <TextInput
           placeholder="Search for a location"
           value={searchQuery}
           onChangeText={searchLocations}
-          style={{
-            height: 44,
-            borderWidth: 1,
-            borderColor: "#ccc",
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            marginBottom: 10,
-          }}
+          style={styles.searchInput}
         />
+
+        {/* Search Results */}
         {searchResults.length > 0 && (
-          <View style={{ maxHeight: 200 }}>
+          <View style={styles.searchResultsContainer}>
             {searchResults.map((result, index) => (
               <TouchableOpacity
                 key={index}
@@ -209,21 +218,20 @@ export default function EventCreation() {
                   setSearchQuery(`${result.street}, ${result.postalCode}`);
                   setSearchResults([]);
                 }}
-                style={{
-                  padding: 10,
-                  borderBottomWidth: 1,
-                  borderColor: "#eee",
-                }}
+                style={styles.searchResult}
               >
-                <Text>{`${result.name}, ${result.city}, ${result.postalCode}`}</Text>
+                <Text style={styles.searchResultText}>
+                  {`${result.name}, ${result.city}, ${result.postalCode}`}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
         )}
-        <Button
-          title="Create Event ✨"
-          onPress={submitEvent}
-        />
+
+        {/* Submit Button */}
+        <TouchableOpacity onPress={submitEvent} style={styles.button}>
+          <Text style={styles.buttonText}>Create Event ✨</Text>
+        </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback >
   );
@@ -231,16 +239,76 @@ export default function EventCreation() {
 
 const styles = StyleSheet.create({
   container: {
+    padding: 30,
+    backgroundColor: "#F9F9F9", // Light background to make the accents pop
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
-  dateTimeButton: {
-    backgroundColor: "#f0f0f0",
-    padding: 15,
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#4CA19E", // Colour used for headings
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#4CA19E", // Colour used for section titles
+    marginVertical: 10,
+  },
+  input: {
+    height: 44,
+    borderWidth: 1,
+    borderColor: "#4CA19E", // Using the colour for the border
     borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    fontSize: 16,
+    color: "#333", // A dark text for contrast
+  },
+  item: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 5,
   },
   dateTimeText: {
+    fontSize: 18,
+    color: "#4CA19E",
+    textDecorationLine: "underline",
+    marginBottom: 20,
+  },
+  searchInput: {
+    height: 44,
+    borderWidth: 1,
+    borderColor: "#4CA19E",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
     fontSize: 16,
+    color: "#333",
+  },
+  searchResultsContainer: {
+    maxHeight: 200,
+    marginBottom: 20,
+  },
+  searchResult: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+  },
+  searchResultText: {
+    fontSize: 14,
+    color: "#4CA19E", // Text in the same colour for consistency
+  },
+  button: {
+    backgroundColor: "#4CA19E", // Colour used for the button
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  buttonText: {
+    color: "#fff", // White text for contrast
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
