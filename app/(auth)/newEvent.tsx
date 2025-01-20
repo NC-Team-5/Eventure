@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as Location from "expo-location";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { db, auth } from "../../firebaseConfig";
@@ -32,6 +33,7 @@ export default function EventCreation() {
     if (newItem) {
       setItemsList([...itemsList, newItem]);
       setNewItem("");
+
     }
   };
 
@@ -137,10 +139,6 @@ export default function EventCreation() {
 
   const renderItem = ({ item }) => <Text style={styles.item}>{item}</Text>;
 
-  const renderSectionHeader = (title) => (
-    <Text style={styles.sectionTitle}>{title}</Text>
-  );
-
   const renderSearchResults = () => (
     <View style={styles.searchResultsContainer}>
       {searchResults.map((result, index) => (
@@ -172,90 +170,79 @@ export default function EventCreation() {
       style={styles.container}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <FlatList
-          data={[
-            { id: 'event-name', content: renderSectionHeader('🎟️ Create Event') },
-            {
-              id: 'event-name-input', content: (
-                <TextInput
-                  style={styles.input}
-                  autoCapitalize="words"
-                  returnKeyType="next"
-                  placeholder="Event Name"
-                  maxLength={75}
-                  onChangeText={(input) => setEventName(input)}
-                />
-              )
-            },
-            { id: 'add-items', content: renderSectionHeader('📋 Add Items') },
-            {
-              id: 'add-item-input', content: (
-                <TextInput
-                  autoCapitalize="words"
-                  enterKeyHint="next"
-                  placeholder="Add Items"
-                  maxLength={75}
-                  returnKeyType="next"
-                  enablesReturnKeyAutomatically={true}
-                  onSubmitEditing={addItem}
-                  value={newItem}
-                  onChangeText={(input) => setNewItem(input)}
-                  style={styles.input}
-                />
-              )
-            },
-            {
-              id: 'items-list', content: itemsList.length === 0 ? (
-                <Text style={styles.noItemsText}>No items added yet. Add some!</Text>
-              ) : (
-                <FlatList
-                  data={itemsList}
-                  renderItem={renderItem}
-                />
-              )
-            },
-            { id: 'date-time', content: renderSectionHeader('🗓️ Date & Time') },
-            {
-              id: 'date-time-display', content: (
-                <Text onPress={showDatePicker} style={styles.dateTimeText}>
-                  {formatDateWithOrdinal(selectedDateTime)}
-                </Text>
-              )
-            },
-            {
-              id: 'date-time-picker', content: (
-                <DateTimePickerModal
-                  isVisible={isDatePickerVisible}
-                  mode="datetime"
-                  onConfirm={handleDateConfirm}
-                  onCancel={hideDatePicker}
-                  minimumDate={new Date()}
-                />
-              )
-            },
-            { id: 'location', content: renderSectionHeader('📍 Location') },
-            {
-              id: 'search-input', content: (
-                <TextInput
-                  placeholder="Search for a location"
-                  value={searchQuery}
-                  onChangeText={searchLocations}
-                  style={styles.searchInput}
-                />
-              )
-            },
-            { id: 'search-results', content: renderSearchResults() },
-            {
-              id: 'submit-button', content: (
-                <TouchableOpacity onPress={submitEvent} style={styles.button}>
-                  <Text style={styles.buttonText}>Create Event ✨</Text>
-                </TouchableOpacity>
-              )
-            }
-          ]}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => item.content}
-        />
+        <KeyboardAwareScrollView
+          style={styles.container}
+          resetScrollToCoords={{ x: 0, y: 0 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: -20 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View>
+            {/* Event Name Input */}
+            <Text style={styles.sectionTitle}>🎟️ Create Event</Text>
+            <TextInput
+              style={styles.input}
+              autoCapitalize="words"
+              returnKeyType="next"
+              placeholder="Event Name"
+              maxLength={75}
+              onChangeText={(input) => setEventName(input)}
+            />
+
+            {/* Add Item Input */}
+            <Text style={styles.sectionTitle}>📋 Add Items</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Add Items"
+              autoCapitalize="words"
+              maxLength={75}
+              returnKeyType="next"
+              enablesReturnKeyAutomatically={true}
+              blurOnSubmit={false}
+              onSubmitEditing={addItem}
+              value={newItem}
+              onChangeText={(input) => setNewItem(input)}
+            />
+
+            {/* Items List (using FlatList) */}
+            {itemsList.length === 0 ? (
+              <Text style={styles.noItemsText}>No items added yet. Add some!</Text>
+            ) : (
+              <FlatList
+                data={itemsList}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => `${item}-${index}`}
+              />
+            )}
+
+            {/* Date and Time */}
+            <Text style={styles.sectionTitle}>🗓️ Date & Time</Text>
+            <Text onPress={showDatePicker} style={styles.dateTimeText}>
+              {formatDateWithOrdinal(selectedDateTime)}
+            </Text>
+            <DateTimePickerModal
+              isVisible={isDatePickerVisible}
+              mode="datetime"
+              onConfirm={handleDateConfirm}
+              onCancel={hideDatePicker}
+              minimumDate={new Date()}
+            />
+
+            {/* Location Search */}
+            <Text style={styles.sectionTitle}>📍 Location</Text>
+            <TextInput
+              placeholder="Search for a location"
+              value={searchQuery}
+              onChangeText={searchLocations}
+              style={styles.searchInput}
+            />
+            {renderSearchResults()}
+
+            {/* Submit Button */}
+            <TouchableOpacity onPress={submitEvent} style={styles.button}>
+              <Text style={styles.buttonText}>Create Event ✨</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAwareScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
@@ -263,7 +250,7 @@ export default function EventCreation() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 30,
+    padding: 10,
     backgroundColor: "#F9F9F9",
     flexGrow: 1,
   },
