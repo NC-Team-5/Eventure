@@ -8,11 +8,11 @@ import EventCard from "./eventCard";
 const EventsList = () => {
   const [events, setEvents] = useState<
     {
-      id: number;
-      location: string;
+      // id: number;
       name: string;
+      location: string;
+      date: string;
       numOfGuests: number;
-      date: Timestamp;
     }[]
   >([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ const EventsList = () => {
         const allEvents = querySnapshot.docs.map((doc) => ({
           // Ensure you have a unique identifier for each event
           location: doc.data().eventLocation,
-          numOfGuests: doc.data().eventGuests,
+          numOfGuests: doc.data().eventGuests.length,
           date: doc.data().eventDate,
           name: doc.data().eventName,
           host: doc.data().eventHost.hostName,
@@ -67,7 +67,7 @@ const EventsList = () => {
   return (
     <ScrollView>
       {events.map((event) => (
-        <EventCard event={event} key={event.id} />
+        <EventCard event={event} />
       ))}
     </ScrollView>
   );
