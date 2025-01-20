@@ -19,31 +19,30 @@ const GuestList = () => {
   const handleAddItem = () => {
     if (newGuest.trim() !== "") {
       console.log("New Guest:", newGuest);
-
-
-
-      setNewGuest(""); // Clear the input field
-      setAddingGuest(false); // Hide the input field
+      setNewGuest("");
+      setAddingGuest(false);
     }
   };
 
   return (
     <>
       <View style={card.box}>
-        <View style={{ flexDirection: "row" }}>
-          <Text style={textBox.box}> </Text>
-        </View>
+        <View>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={textBox.box}> </Text>
+          </View>
 
-        <View style={{ flexDirection: "row" }}>
-          <Text style={textBox.box}> </Text>
-        </View>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={textBox.box}> </Text>
+          </View>
 
-        <View style={{ flexDirection: "row" }}>
-          <Text style={textBox.box}> </Text>
-        </View>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={textBox.box}> </Text>
+          </View>
 
-        <View style={{ flexDirection: "row" }}>
-          <Text style={textBox.box}> </Text>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={textBox.box}> </Text>
+          </View>
         </View>
 
         {isAddingGuest ? (
@@ -73,7 +72,10 @@ const GuestList = () => {
             </TouchableOpacity>
           </View>
         ) : (
-          <TouchableOpacity onPress={handlePress} style={{ marginTop: 10 }}>
+          <TouchableOpacity
+            onPress={handlePress}
+            style={{ marginTop: 10, width: "98%" }}
+          >
             <Text style={card.box2}>Add Guest</Text>
           </TouchableOpacity>
         )}
@@ -86,7 +88,7 @@ export default GuestList;
 
 const card = StyleSheet.create({
   box: {
-    alignItems: "flex-start",
+    alignContent: "center",
     borderColor: "#ccc",
     borderWidth: 1,
     backgroundColor: "#4CA19E",
@@ -105,15 +107,17 @@ const card = StyleSheet.create({
     justifyContent: "flex-start",
   },
   box2: {
-    justifyContent: "center",
-    alignItems: "center",
-    textAlign: "center",
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
     padding: 12,
     margin: 5,
     fontSize: 13,
-    width: 337.5,
+    width: "98.5%",
+
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
   },
   textField: {
     justifyContent: "center",
@@ -124,7 +128,7 @@ const card = StyleSheet.create({
     padding: 12,
     margin: 5,
     fontSize: 13,
-    width: 280,
+    width: "77.5%",
 
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -140,7 +144,12 @@ const textBox = StyleSheet.create({
     padding: 12,
     margin: 5,
     fontSize: 13,
-    width: 337.5,
+    width: "95%",
     height: 40,
+
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
   },
 });

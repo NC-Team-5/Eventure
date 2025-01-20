@@ -26,15 +26,10 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
 
 const ProfilePicSelect = () => {
-  const [selectedImage, setSelectedImage] = React.useState<string | undefined>(
-    undefined
-  );
-  const [profilePic, setProfilePic] = React.useState(
-    "../../assets/images/Profile_avatar_placeholder_large.png"
-  );
-
   const auth = getAuth(app);
   const user = auth.currentUser;
   const storage = getStorage();
@@ -43,6 +38,11 @@ const ProfilePicSelect = () => {
     storage,
     `profilePics/${user?.displayName}.jpg`
   );
+
+  const [selectedImage, setSelectedImage] = React.useState<string | undefined>(
+    undefined
+  );
+  const [profilePic, setProfilePic] = React.useState(user?.photoURL);
 
   const uriToBlob = (uri) => {
     return new Promise((resolve, reject) => {
@@ -69,56 +69,63 @@ const ProfilePicSelect = () => {
         const profilePicUrl = getDownloadURL(
           ref(storage, `profilePics/${user?.displayName}.jpg`)
         ).then((url) => {
+          updateProfilePic(user, url);
           setSelectedImage(url);
-          updateProfile(user, {
-            photoURL: { url },
-          })
-            .then((result) => {
-              // Profile updated!
-            })
-            .catch((error) => {
-              console.log(error, "<---error uploading to Firebase");
-            });
         });
       })
-      .catch((error) => {});
+      .catch((error) => { });
+  };
+
+  const updateProfilePic = (user, url) => {
+    setProfilePic(url);
+    updateProfile(user, {
+      displayName: user.displayName,
+      photoURL: url,
+    })
+      .then(() => {
+        const userDocRef = doc(db, "users", user.uid);
+        return setDoc(
+          userDocRef,
+          { photoUrl: url },
+          { merge: true }
+        );
+      })
+      .catch((error) => {
+        alert("Could not change profile pic, please try again");
+      });
   };
 
   const handleOnPress = () => {
     ImagePicker.launchImageLibraryAsync({
-      mediaTypes: "images",
-      //    allowsEditing: true,
-      //    quality: 1,
-    })
-      .then((result) => {
-        if (!result.canceled) {
-          //const { cancelled, uri, width, height, type } = result;
-          setSelectedImage(result.assets[0].uri);
-          const uri = result.assets[0].uri;
-          uriToBlob(uri);
-        } else {
-          alert("You did not select any image.");
-        }
-      })
-      .then((blob) => {
-        return uploadToFirebase(blob);
-      })
-      .then((snapshot) => {
-        console.log("File uploaded");
-      })
-      .catch((error) => {
-        throw error;
-      });
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      quality: 1,
+    }).then((result) => {
+      if (!result.canceled) {
+        setSelectedImage(result.assets[0].uri);
+        const uri = result.assets[0].uri;
+        uriToBlob(uri)
+          .then((blob) => {
+            return uploadToFirebase(blob);
+          })
+          .then((snapshot) => { })
+          .catch((error) => {
+            throw error;
+          });
+      } else {
+        alert("No image selected");
+      }
+    });
   };
 
-  const placeholderImage = require("../../assets/images/Profile_avatar_placeholder_large.png");
   return (
     <>
       <View style={styles.profileContainer}>
         <ThemedText>Change your profile pic</ThemedText>
         <View style={styles.imageContainer}>
           <ImageViewer
-            imgSource={placeholderImage}
+            style={{ width: 250, height: 250 }}
+            imgSource={profilePic}
             selectedImage={selectedImage}
           />
           <View>
