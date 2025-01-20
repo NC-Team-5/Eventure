@@ -10,7 +10,7 @@ const Photos = () => {
   const cameraRef = useRef();
 
   const imageUrl =
-    "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/AlexFace.png?alt=media&token=d76371d5-7676-464e-bb9d-35dc9a236db7";
+    "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/three-friends.png?alt=media&token=85cabf5a-9048-47eb-820f-90e138b422de";
 
   const takePicture = async () => {
     console.log("Taking picture...");
