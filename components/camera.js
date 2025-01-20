@@ -1,25 +1,57 @@
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { CameraView, useCameraPermissions } from "expo-camera"; // Ensure you're using the `Camera` component
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { useState, useRef } from "react";
+import { useRouter} from "expo-router";
+import { ref, uploadString, getDownloadURL } from "firebase/storage";
+import * as FileSystem from "expo-file-system"; // To read the file as a Blob
+import { storage } from "../firebaseConfig"; // Import your Firebase config
+import { decode } from "base64-arraybuffer"
 
 const Photos = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState();
   const [isCameraActive, setIsCameraActive] = useState(false);
   const cameraRef = useRef();
+  const router = useRouter();
 
   const imageUrl =
     "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/AlexFace.png?alt=media&token=d76371d5-7676-464e-bb9d-35dc9a236db7";
 
-  const takePicture = async () => {
-    console.log("Taking picture...");
-    if (cameraRef.current) {
-      const newPhoto = await cameraRef.current.takePictureAsync();
-      console.log("Picture taken", newPhoto);
-      setPhoto(newPhoto);
-    }
-  };
+    const takePicture = async () => {
+      console.log("Taking picture...");
+      if (cameraRef.current) {
+        const newPhoto = await cameraRef.current.takePictureAsync();
+        console.log("Picture taken", newPhoto);
+        setPhoto(newPhoto);
+    
+        try {
+          // Read the image as Base64 string
+          const base64 = await FileSystem.readAsStringAsync(newPhoto.uri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+    
+          // Create a Firebase Storage reference
+          const fileName = `photos/${Date.now()}.jpg`;
+          const storageRef = ref(storage, fileName);
+    
+          // Upload the Base64 string directly to Firebase
+          await uploadString(storageRef, base64, "base64", {
+            contentType: "image/jpeg", // Specify the content type
+          });
+          console.log("Image uploaded successfully!");
+    
+          // Retrieve the download URL for the uploaded image
+          const downloadUrl = await getDownloadURL(storageRef);
+          console.log("Image available at:", downloadUrl);
+    
+          // Add the image URL to your gallery or database
+          addImageToGallery(downloadUrl);
+        } catch (error) {
+          console.error("Error uploading image:", error);
+        }
+      }
+    };
 
   const exitCamera = () => {
     console.log("Exiting Camera");
@@ -28,6 +60,7 @@ const Photos = () => {
 
   const handleGallery = () => {
     console.log("Pressed");
+    router.push(`/gallery`);
   };
 
   if (permission === null) {
