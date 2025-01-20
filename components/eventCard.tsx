@@ -2,28 +2,52 @@ import { Timestamp } from "firebase/firestore";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter, Link } from "expo-router";
+import { useState } from "react";
 
 const EventCard = ({
   event,
 }: {
   event: {
-    id: number;
     name: string;
     location: string;
-    date: Timestamp;
+    date: string;
     numOfGuests: number;
   };
 }) => {
-  const timestamp = event.date;
-  const dateObject = timestamp.toDate();
+  const [selectedDateTime, setSelectedDateTime] = useState(new Date());
 
-  const formattedDate = dateObject.toLocaleDateString();
-  const formattedTime = dateObject.toLocaleTimeString();
+  const getOrdinalSuffix = (day) => {
+    if (day > 3 && day < 21) return "th";
+    switch (day % 10) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  };
+
+  const formatDateWithOrdinal = (date) => {
+    const weekday = date.toLocaleString("en-GB", { weekday: "short" });
+    const month = date.toLocaleString("en-GB", { month: "long" });
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const time = date.toLocaleString("en-GB", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    return `${weekday} ${month} ${day}${getOrdinalSuffix(day)} ${year} @ ${time}`;
+  };
 
   const imageUrl =
     "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/AlexFace.png?alt=media&token=d76371d5-7676-464e-bb9d-35dc9a236db7";
 
-  const router = useRouter()
+  const router = useRouter();
 
   const handlePress = () => {
     console.log("Pressed");
@@ -52,7 +76,7 @@ const EventCard = ({
           </View>
           <View style={card.box2}>
             <Text style={textBox.box}>
-              {formattedDate} {formattedTime}
+              {formatDateWithOrdinal(selectedDateTime)}
             </Text>
           </View>
         </View>
