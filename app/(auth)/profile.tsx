@@ -3,14 +3,13 @@ import {
   Alert,
   Button,
   Text,
-  Pressable,
   TextInput,
   View,
-  Image,
   ScrollView,
+  TouchableOpacity,
+  SafeAreaView,
 } from "react-native";
-import { ThemedText } from "@/components/ThemedText";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   getAuth,
   signOut,
@@ -20,206 +19,250 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
-import "firebase/storage";
-import * as firebase from "firebase/app";
-import { app } from "../../firebaseConfig";
+import { auth } from "../../firebaseConfig";
 import { router } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
-import ImageViewer from "@/components/profilePage/ProfilePic";
 import ProfilePicSelect from "@/components/profilePage/ProfilePicSelect";
 
 export default function ProfileScreen() {
-  const auth = getAuth(app);
   const user = auth.currentUser;
 
-  const [displayName, setDisplayName] = React.useState(user?.displayName);
-  const [newEmailAddress, setNewEmailAddress] = React.useState(user?.email);
+  const [displayName, setDisplayName] = useState(user?.displayName);
+  const [newEmailAddress, setNewEmailAddress] = useState(user?.email);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  const [displayReAuth, setDisplayReAuth] = useState(false);
+  const [reAuthPassword, setReAuthPassword] = useState(null);
+  const [reAuthEmail, setReAuthEmail] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
 
-  const [selectedImage, setSelectedImage] = React.useState<string | undefined>(
-    undefined
-  );
-  const [displayReAuth, setDisplayReAuth] = React.useState(false);
-  const [reAuthPassword, setReAuthPassword] = React.useState(null);
-  const [reAuthEmail, setReAuthEmail] = React.useState(null);
+  useEffect(() => {
+    validateForm();
+  }, [displayName, newEmailAddress]);
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (!/\S+@\S+\.\S+/.test(newEmailAddress)) {
+      errors.email = "Enter a valid email address";
+    }
+
+    if (!displayName) {
+      errors.name = "Enter your display name";
+    }
+
+    setErrors(errors);
+    setIsFormValid(Object.keys(errors).length === 0);
+  };
 
   const handleDisplayNameChange = () => {
-    updateProfile(user, {
-      displayName: displayName,
-    })
-      .then(() => {
-        //Your new username
-      })
-      .catch((error) => {
-        // An error occurred
-        // ...
-      });
-  };
-  const handleEmailChange = () => {
-    updateEmail(auth.currentUser, newEmailAddress)
-      .then(() => {
-        //Your new email
-      })
-      .catch((error) => {
-        alert("Email address not updated, please try again.");
-      });
+    if (isFormValid) {
+      updateProfile(user, { displayName })
+        .then(() => {
+          Alert.alert("Success!", "Display name updated.");
+        })
+        .catch((error) => {
+          Alert.alert("Error", error.message);
+        });
+    } else {
+      Alert.alert("Invalid details", "Please check the form for errors.");
+    }
   };
 
-  //Re-authentication handler when user changes email address
+  const handleEmailChange = () => {
+    if (isFormValid) {
+      updateEmail(auth.currentUser, newEmailAddress)
+        .then(() => {
+          Alert.alert("Success!", "Email address updated.");
+        })
+        .catch((error) => {
+          Alert.alert("Error", error.message);
+        });
+    }
+  };
+
   const handleReAuth = () => {
     const credential = EmailAuthProvider.credential(user.email, reAuthPassword);
     reauthenticateWithCredential(user, credential)
       .then(() => {
-        // Successfully logged in
+        handleEmailChange();
+        setDisplayReAuth(false);
       })
       .catch((error) => {
-        // An error ocurred
-        alert("Sorry, we could not log you in. Please try again.");
+        Alert.alert("Error", "Reauthentication failed. Please try again.");
       });
   };
 
   const handlePasswordChange = () => {
     sendPasswordResetEmail(auth, user?.email)
       .then(() => {
-        alert(
-          "Your password reset email has been sent. Please check your email, including your spam folder."
-        );
+        Alert.alert("Success", "Password reset email sent.");
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
+        Alert.alert("Error", error.message);
       });
   };
 
-  //Sign Out Handler
   const handleSignOut = () => {
-    const auth = getAuth(app);
-    signOut(auth).then(() => {
-      router.replace("/");
-      Alert.alert("Signed Out", "You have been signed out");
-    });
+    signOut(auth)
+      .then(() => {
+        router.replace("/");
+        Alert.alert("Signed Out", "You have been signed out");
+      })
+      .catch((error) => {
+        Alert.alert("Error", error.message);
+      });
   };
 
-  const placeholderImage = require("../../assets/images/Profile_avatar_placeholder_large.png");
   return (
-    <>
+    <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <ThemedText>Welcome, {user?.displayName}</ThemedText>
-        <View>
-          <View style={styles.profileContainer}>
-            <ProfilePicSelect auth={auth} user={user} />
-          </View>
+        <Text style={styles.title}>Hey there, {user?.displayName} 👋</Text>
 
-          <View style={styles.profileContainer}>
-            <ThemedText>Change your Display Name</ThemedText>
-            <TextInput
-              style={styles.input}
-              onChangeText={setDisplayName}
-              value={displayName}
-            />
-            <Button
-              title="Update display name"
-              onPress={handleDisplayNameChange}
-            />
-          </View>
-          <View>
-            <ThemedText>Change your email address</ThemedText>
-            <TextInput
-              style={styles.input}
-              onChangeText={setNewEmailAddress}
-              value={newEmailAddress}
-              textContentType="emailAddress"
-            />
-            <Button
-              title="Update email"
-              onPress={() => {
-                setDisplayReAuth(true);
-              }}
-            />
+        <View style={styles.profileContainer}>
+          <ProfilePicSelect auth={auth} user={user} />
+        </View>
 
-            {
-              <View style={{ display: displayReAuth ? "flex" : "none" }}>
-                <ThemedText>
-                  Please re-enter your login details to update your email
-                  address.
-                </ThemedText>
-                <TextInput
-                  style={styles.input}
-                  onChangeText={setReAuthEmail}
-                  placeholder="Email address"
-                  keyboardType="email-address"
-                />
-                <TextInput
-                  style={styles.input}
-                  onChangeText={setReAuthPassword}
-                  secureTextEntry={true}
-                  placeholder="Password"
-                />
-                <Button
-                  title="Submit login details"
-                  onPress={() => {
-                    handleReAuth();
-                    handleEmailChange();
-                    setDisplayReAuth(false);
-                  }}
-                />
-              </View>
-            }
-          </View>
-          <View>
-            <ThemedText>Change your password</ThemedText>
-            <Button
-              title="Send password reset email"
-              onPress={handlePasswordChange}
-            />
-          </View>
-          <View>
-            <Button title="Log out" onPress={handleSignOut} />
-          </View>
+        <View style={styles.profileContainer}>
+          <Text style={styles.inputLabel}>Change your Display Name</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={setDisplayName}
+            placeholder={user?.displayName}
+          />
+          {showErrors && errors.name && <Text style={styles.error}>{errors.name}</Text>}
+          <TouchableOpacity
+            onPress={handleDisplayNameChange}
+            style={[styles.button, !isFormValid && styles.buttonDisabled]}
+            disabled={!isFormValid}
+          >
+            <Text style={styles.buttonText}>Update display name</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.profileContainer}>
+          <Text style={styles.inputLabel}>Change your email address</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={setNewEmailAddress}
+            keyboardType="email-address"
+            placeholder={user?.email}
+          />
+          {showErrors && errors.email && <Text style={styles.error}>{errors.email}</Text>}
+          <TouchableOpacity
+            onPress={() => setDisplayReAuth(true)}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>Update email</Text>
+          </TouchableOpacity>
+
+          {displayReAuth && (
+            <View style={styles.reAuthContainer}>
+              <Text style={styles.inputLabel}>Please re-enter your details to update email</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={setReAuthEmail}
+                value={reAuthEmail}
+                placeholder="Email address"
+                keyboardType="email-address"
+              />
+              <TextInput
+                style={styles.input}
+                onChangeText={setReAuthPassword}
+                secureTextEntry={true}
+                placeholder="Password"
+              />
+              <TouchableOpacity
+                onPress={handleReAuth}
+                style={[styles.button, !isFormValid && styles.buttonDisabled]}
+                disabled={!isFormValid}
+              >
+                <Text style={styles.buttonText}>Submit login details</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.profileContainer}>
+          <Text style={styles.inputLabel}>Change your password</Text>
+          <TouchableOpacity
+            onPress={handlePasswordChange}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>Send password reset email</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.profileContainer}>
+          <TouchableOpacity onPress={handleSignOut} style={styles.button}>
+            <Text style={styles.buttonText}>Log out</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-  input: {
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-  },
-  profileContainer: {
-    marginBottom: 10,
-  },
-  imageContainer: {
+  container: {
+    padding: 30,
+    backgroundColor: "#F9F9F9",
     flex: 1,
-    alignItems: "center",
-  },
-  image: {
-    flex: 1,
-    width: 250,
-    height: 250,
-    borderRadius: 18,
   },
   scrollView: {
     padding: 25,
-    marginBottom: 100,
+    marginBottom: 50,
+    backgroundColor: "#F9F9F9",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#4CA19E",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#4CA19E",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    fontSize: 16,
+    color: "#333",
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  profileContainer: {
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: "#4CA19E",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonDisabled: {
+    backgroundColor: "#A0D3D0",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  error: {
+    color: "red",
+    fontSize: 14,
+    marginTop: 5,
+  },
+  reAuthContainer: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: "#f4f4f4",
+    borderRadius: 8,
   },
 });

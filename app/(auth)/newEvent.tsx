@@ -18,6 +18,7 @@ import * as Location from "expo-location";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { db, auth } from "../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
+import { ThemedText } from "@/components/ThemedText";
 
 export default function EventCreation() {
   const [eventName, setEventName] = useState("");
