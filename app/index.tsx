@@ -1,17 +1,15 @@
-import { View, StyleSheet, TextInput, Button, Alert, TouchableOpacity, Text, ScrollView } from "react-native";
+import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert } from "react-native";
 import React from "react";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { app } from "../firebaseConfig";
 import { useRouter, Link } from "expo-router";
 
 export default function SignInPage() {
-  //State Management
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   const router = useRouter();
 
-  //Authentication State Listener
   React.useEffect(() => {
     const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -25,7 +23,6 @@ export default function SignInPage() {
     return unsubscribe;
   }, []);
 
-  //Sign In Handler
   const handleSignIn = () => {
     const auth = getAuth(app);
     signInWithEmailAndPassword(auth, email, password)
@@ -44,12 +41,8 @@ export default function SignInPage() {
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Eventure</Text>
 
-
       <TextInput
         keyboardType="email-address"
-        autoComplete="email"
-        textContentType="emailAddress"
-        importantForAutofill="yes"
         autoCapitalize="none"
         autoCorrect={false}
         style={styles.input}
@@ -58,22 +51,21 @@ export default function SignInPage() {
         value={email}
       />
 
-
       <TextInput
         style={styles.input}
         onChangeText={setPassword}
-        secureTextEntry={true}
+        secureTextEntry
         placeholder="Password"
         value={password}
       />
-
 
       <TouchableOpacity onPress={handleSignIn} style={styles.button}>
         <Text style={styles.buttonText}>Log in</Text>
       </TouchableOpacity>
 
-
-      <Link href="/signup" style={styles.signupLink}>Don't have an account? Sign Up</Link>
+      <TouchableOpacity onPress={() => router.replace("/signup")} style={styles.signupLink}>
+        <Text style={styles.signupLinkText}>Don't have an account? Sign Up</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -82,19 +74,20 @@ const styles = StyleSheet.create({
   container: {
     padding: 30,
     backgroundColor: "#F9F9F9",
-    flexGrow: 1,
+    flex: 1,
   },
   title: {
     fontSize: 32,
     fontWeight: "bold",
     color: "#4CA19E",
     marginBottom: 20,
+    textAlign: "center",
   },
   input: {
-    height: 44,
+    height: 50,
     borderWidth: 1,
     borderColor: "#4CA19E",
-    borderRadius: 5,
+    borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 15,
     fontSize: 16,
@@ -102,7 +95,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "#4CA19E",
-    padding: 12,
+    padding: 15,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 20,
