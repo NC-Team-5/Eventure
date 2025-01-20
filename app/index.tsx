@@ -63,8 +63,7 @@ export default function SignInPage() {
         <TouchableOpacity onPress={handleSignIn} style={styles.button}>
           <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.replace("/signup")} style={styles.signupLink}>
+        <TouchableOpacity onPress={() => router.navigate("/signup")} style={styles.signupLink}>
           <Text style={styles.signupLinkText}>Don't have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>

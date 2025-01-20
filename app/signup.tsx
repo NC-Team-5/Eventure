@@ -102,7 +102,7 @@ export default function SignUpForm() {
             {error}
           </Text>
         ))}
-        <TouchableOpacity onPress={() => router.replace("/home")} style={styles.loginLink}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.loginLink}>
           <Text style={styles.loginLinkText}>Already have an account? Log In</Text>
         </TouchableOpacity>
       </View>
