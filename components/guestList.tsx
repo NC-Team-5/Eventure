@@ -5,11 +5,68 @@ import {
   TouchableOpacity,
   TextInput,
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { db } from "@/firebaseConfig";
+import { collection, getDocs } from "firebase/firestore";
+
+//TO DO
+// Get list of attendees from the event in Firebase, and setGuestList array
+// add to setNewGuest to add it to the setGuestList array
+// upload the new guest list to the Firebase event
 
 const GuestList = () => {
   const [isAddingGuest, setAddingGuest] = useState(false);
   const [newGuest, setNewGuest] = useState("");
+  const [guestList, setGuestList] = useState();
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEventGuestList = async () => {
+    try {
+      const eventCollection = collection(
+        db,
+        "test-events",
+        " 3hlJUNvfESwzk8XnUzB4"
+      );
+      const querySnapshot = await getDocs(eventCollection);
+      const allGuests = querySnapshot.docs.map((doc) => ({
+        guests: doc.data().eventGuests,
+      }));
+      setGuestList(allGuests);
+    } catch (err) {
+      console.error("Error fetching guests:", err);
+      setError("Failed to fetch guests");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEvents = async () => {
+    try {
+      const eventsCollection = collection(db, "test-events");
+      const querySnapshot = await getDocs(eventsCollection);
+      const allEvents = querySnapshot.docs.map((doc) => ({
+        location: doc.data().eventLocation,
+        numOfGuests: doc.data().eventGuests.length,
+        date: new Date(doc.data().eventDate).toLocaleString(),
+        name: doc.data().eventName,
+        host: doc.data().eventHost.hostName,
+        guests: doc.data().eventGuests,
+      }));
+      setEvents(allEvents);
+    } catch (err) {
+      console.error("Error fetching events:", err);
+      setError("Failed to fetch events");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  console.log(events, "<---guestList");
 
   const handlePress = () => {
     console.log("Add Guest");
