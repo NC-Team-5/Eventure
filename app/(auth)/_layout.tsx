@@ -37,6 +37,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="newEvent"
         options={{
+          headerShown: false,
           title: "New Event",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="plus.circle.fill" color={color} />

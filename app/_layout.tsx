@@ -13,6 +13,7 @@ import { app } from "../firebaseConfig";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { SafeAreaView } from "react-native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -36,7 +37,7 @@ export default function RootLayout() {
       const inAuthGroup = segments[0] === "(auth)";
 
       if (user && !inAuthGroup) {
-        router.replace("/(auth)/home");
+        router.replace("/home");
       } else if (!user && inAuthGroup) {
         router.replace("/");
       }
@@ -55,11 +56,11 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
+
+      <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style="auto" />
     </ThemeProvider>
   );
 }

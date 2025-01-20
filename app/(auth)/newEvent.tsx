@@ -11,6 +11,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
 } from "react-native";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as Location from "expo-location";
@@ -165,86 +166,88 @@ export default function EventCreation() {
   );
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <KeyboardAwareScrollView
-          style={styles.container}
-          resetScrollToCoords={{ x: 0, y: 0 }}
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: -20 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View>
-            {/* Event Name Input */}
-            <Text style={styles.sectionTitle}>🎟️ Create Event</Text>
-            <TextInput
-              style={styles.input}
-              autoCapitalize="words"
-              returnKeyType="next"
-              placeholder="Event Name"
-              maxLength={75}
-              onChangeText={(input) => setEventName(input)}
-            />
-
-            {/* Add Item Input */}
-            <Text style={styles.sectionTitle}>📋 Add Items</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Add Items"
-              autoCapitalize="words"
-              maxLength={75}
-              returnKeyType="next"
-              enablesReturnKeyAutomatically={true}
-              blurOnSubmit={false}
-              onSubmitEditing={addItem}
-              value={newItem}
-              onChangeText={(input) => setNewItem(input)}
-            />
-
-            {/* Items List (using FlatList) */}
-            {itemsList.length === 0 ? (
-              <Text style={styles.noItemsText}>No items added yet. Add some!</Text>
-            ) : (
-              <FlatList
-                data={itemsList}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => `${item}-${index}`}
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <KeyboardAwareScrollView
+            style={styles.container}
+            resetScrollToCoords={{ x: 0, y: 0 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: -20 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View>
+              {/* Event Name Input */}
+              <Text style={styles.sectionTitle}>🎟️ Create Event</Text>
+              <TextInput
+                style={styles.input}
+                autoCapitalize="words"
+                returnKeyType="next"
+                placeholder="Event Name"
+                maxLength={75}
+                onChangeText={(input) => setEventName(input)}
               />
-            )}
 
-            {/* Date and Time */}
-            <Text style={styles.sectionTitle}>🗓️ Date & Time</Text>
-            <Text onPress={showDatePicker} style={styles.dateTimeText}>
-              {formatDateWithOrdinal(selectedDateTime)}
-            </Text>
-            <DateTimePickerModal
-              isVisible={isDatePickerVisible}
-              mode="datetime"
-              onConfirm={handleDateConfirm}
-              onCancel={hideDatePicker}
-              minimumDate={new Date()}
-            />
+              {/* Add Item Input */}
+              <Text style={styles.sectionTitle}>📋 Add Items</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Add Items"
+                autoCapitalize="words"
+                maxLength={75}
+                returnKeyType="next"
+                enablesReturnKeyAutomatically={true}
+                blurOnSubmit={false}
+                onSubmitEditing={addItem}
+                value={newItem}
+                onChangeText={(input) => setNewItem(input)}
+              />
 
-            {/* Location Search */}
-            <Text style={styles.sectionTitle}>📍 Location</Text>
-            <TextInput
-              placeholder="Search for a location"
-              value={searchQuery}
-              onChangeText={searchLocations}
-              style={styles.searchInput}
-            />
-            {renderSearchResults()}
+              {/* Items List (using FlatList) */}
+              {itemsList.length === 0 ? (
+                <Text style={styles.noItemsText}>No items added yet. Add some!</Text>
+              ) : (
+                <FlatList
+                  data={itemsList}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => `${item}-${index}`}
+                />
+              )}
 
-            {/* Submit Button */}
-            <TouchableOpacity onPress={submitEvent} style={styles.button}>
-              <Text style={styles.buttonText}>Create Event ✨</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAwareScrollView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+              {/* Date and Time */}
+              <Text style={styles.sectionTitle}>🗓️ Date & Time</Text>
+              <Text onPress={showDatePicker} style={styles.dateTimeText}>
+                {formatDateWithOrdinal(selectedDateTime)}
+              </Text>
+              <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="datetime"
+                onConfirm={handleDateConfirm}
+                onCancel={hideDatePicker}
+                minimumDate={new Date()}
+              />
+
+              {/* Location Search */}
+              <Text style={styles.sectionTitle}>📍 Location</Text>
+              <TextInput
+                placeholder="Search for a location"
+                value={searchQuery}
+                onChangeText={searchLocations}
+                style={styles.searchInput}
+              />
+              {renderSearchResults()}
+
+              {/* Submit Button */}
+              <TouchableOpacity onPress={submitEvent} style={styles.button}>
+                <Text style={styles.buttonText}>Create Event ✨</Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAwareScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

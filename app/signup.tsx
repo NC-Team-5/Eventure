@@ -1,4 +1,4 @@
-import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert } from "react-native";
+import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert, SafeAreaView } from "react-native";
 import React, { useState, useEffect } from "react";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { app } from "../firebaseConfig";
@@ -61,54 +61,57 @@ export default function SignUpForm() {
   };
 
   return (
-    <View style={styles.formContainer}>
-      <Text style={styles.title}>Create your account</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Create your account</Text>
 
-      <TextInput
-        keyboardType="email-address"
-        style={styles.input}
-        onChangeText={setEmail}
-        value={email}
-        placeholder="Enter email address"
-      />
+        <TextInput
+          keyboardType="email-address"
+          style={styles.input}
+          onChangeText={setEmail}
+          value={email}
+          placeholder="Enter email address"
+        />
 
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        value={password}
-        secureTextEntry
-        placeholder="Choose a password"
-      />
+        <TextInput
+          style={styles.input}
+          onChangeText={setPassword}
+          value={password}
+          secureTextEntry
+          placeholder="Choose a password"
+        />
 
-      <TextInput
-        style={styles.input}
-        onChangeText={setDisplayName}
-        value={displayName}
-        placeholder="Choose display name"
-      />
+        <TextInput
+          style={styles.input}
+          onChangeText={setDisplayName}
+          autoCapitalize="words"
+          value={displayName}
+          placeholder="Choose display name"
+        />
 
-      <TouchableOpacity
-        onPress={handleSubmit}
-        style={[styles.button, !isFormValid && styles.buttonDisabled]}
-        disabled={!isFormValid}
-      >
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleSubmit}
+          style={[styles.button, !isFormValid && styles.buttonDisabled]}
+          disabled={!isFormValid}
+        >
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
 
-      {showErrors && Object.values(errors).map((error, index) => (
-        <Text key={index} style={styles.error}>
-          {error}
-        </Text>
-      ))}
-      <TouchableOpacity onPress={() => router.replace("/home")} style={styles.loginLink}>
-        <Text style={styles.loginLinkText}>Already have an account? Log In</Text>
-      </TouchableOpacity>
-    </View>
+        {showErrors && Object.values(errors).map((error, index) => (
+          <Text key={index} style={styles.error}>
+            {error}
+          </Text>
+        ))}
+        <TouchableOpacity onPress={() => router.replace("/home")} style={styles.loginLink}>
+          <Text style={styles.loginLinkText}>Already have an account? Log In</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  formContainer: {
+  container: {
     padding: 30,
     backgroundColor: "#F9F9F9",
     flex: 1,
@@ -154,12 +157,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#4CA19E",
     marginTop: 20,
-    textAlign: "center",
+    textAlign: "left",
   },
   loginLinkText: {
     fontSize: 16,
     color: "#4CA19E",
     marginTop: 20,
-    textAlign: "center",
+    textAlign: "left",
   },
 });

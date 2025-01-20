@@ -1,4 +1,4 @@
-import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert } from "react-native";
+import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert, SafeAreaView } from "react-native";
 import React from "react";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { app } from "../firebaseConfig";
@@ -14,7 +14,6 @@ export default function SignInPage() {
     const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log("User is signed in:", user.email);
         router.replace("/home");
       } else {
         console.log("User is signed out");
@@ -38,35 +37,38 @@ export default function SignInPage() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Eventure</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Eventure</Text>
+        <Text style={styles.subtitle}>Plan your next event</Text>
 
-      <TextInput
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-        style={styles.input}
-        onChangeText={setEmail}
-        placeholder="Email address"
-        value={email}
-      />
+        <TextInput
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          style={styles.input}
+          onChangeText={setEmail}
+          placeholder="Email address"
+          value={email}
+        />
 
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        secureTextEntry
-        placeholder="Password"
-        value={password}
-      />
+        <TextInput
+          style={styles.input}
+          onChangeText={setPassword}
+          secureTextEntry
+          placeholder="Password"
+          value={password}
+        />
 
-      <TouchableOpacity onPress={handleSignIn} style={styles.button}>
-        <Text style={styles.buttonText}>Log in</Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={handleSignIn} style={styles.button}>
+          <Text style={styles.buttonText}>Log in</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.replace("/signup")} style={styles.signupLink}>
-        <Text style={styles.signupLinkText}>Don't have an account? Sign Up</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity onPress={() => router.replace("/signup")} style={styles.signupLink}>
+          <Text style={styles.signupLinkText}>Don't have an account? Sign Up</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -79,6 +81,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
+    color: "#4CA19E",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 26,
+    fontWeight: "400",
     color: "#4CA19E",
     marginBottom: 20,
     textAlign: "center",
@@ -110,5 +119,11 @@ const styles = StyleSheet.create({
     color: "#4CA19E",
     marginTop: 20,
     textAlign: "center",
+  },
+  signupLinkText: {
+    fontSize: 16,
+    color: "#4CA19E",
+    marginTop: 20,
+    textAlign: "left",
   },
 });
