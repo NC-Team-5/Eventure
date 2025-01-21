@@ -1,21 +1,19 @@
-import { ScrollView, Text, View, StyleSheet, SafeAreaView } from "react-native";
+import { ScrollView, Text, View, StyleSheet } from "react-native";
 import ItemList from "@/components/ItemList";
 import GuestList from "@/components/guestList";
 import Photos from "@/components/camera";
 
 export default function Event() {
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.title}>Christians Funeral</Text>
-          <ItemList />
-          <GuestList />
-          <Photos />
-          {/* <Map /> */}
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.title}>Christians Funeral</Text>
+        <ItemList />
+        <GuestList />
+        <Photos />
+        {/* <Map /> */}
+      </ScrollView>
+    </View>
   );
 }
 
