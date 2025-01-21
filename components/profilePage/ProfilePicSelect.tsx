@@ -124,10 +124,10 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 10,
   },
   buttonContainer: {
-    marginTop: 15,
+    marginTop: 10,
   },
   button: {
     backgroundColor: "#4CA19E",
