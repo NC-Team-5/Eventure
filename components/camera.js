@@ -1,33 +1,81 @@
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { CameraView, useCameraPermissions } from "expo-camera"; // Ensure you're using the `Camera` component
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { useState, useRef } from "react";
+import { useRouter } from "expo-router";
+import { getDownloadURL, ref, uploadBytes, getStorage } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/firebaseConfig";
 
 const Photos = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState();
   const [isCameraActive, setIsCameraActive] = useState(false);
   const cameraRef = useRef();
+  const router = useRouter();
+  const storage = getStorage();
+  const uniqueId = `${Date.now()}`;
+  const galleryRef = ref(storage, `gallery/photo_${uniqueId}.jpg`);
 
   const imageUrl =
     "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/three-friends.png?alt=media&token=85cabf5a-9048-47eb-820f-90e138b422de";
 
+  const uriToBlob = (uri) => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+
+      xhr.onerror = function () {
+        reject(new Error("uriToBlob failed"));
+      }; 
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+
+      xhr.send(null);
+    });
+  };
+
+  const uploadToFirebase = async (blob) => {
+    try {
+      const uniqueId = `${Date.now()}`;
+      const storageRef = ref(storage, `gallery/photo_${uniqueId}.jpg`);
+      await uploadBytes(storageRef, blob);
+  
+      const downloadUrl = await getDownloadURL(storageRef);
+  
+      await setDoc(doc(db, "gallery", uniqueId), {
+        url: downloadUrl,
+        timestamp: Date.now(),
+      });
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      throw error;
+    }
+  };
+
   const takePicture = async () => {
-    console.log("Taking picture...");
     if (cameraRef.current) {
       const newPhoto = await cameraRef.current.takePictureAsync();
-      console.log("Picture taken", newPhoto);
       setPhoto(newPhoto);
+      uriToBlob(photo.uri)
+        .then((blob) => {
+          return uploadToFirebase(blob);
+        })
+        .then((snapshot) => {})
+        .catch((error) => {
+          throw error;
+        });
     }
   };
 
   const exitCamera = () => {
-    console.log("Exiting Camera");
     setIsCameraActive(false);
   };
 
   const handleGallery = () => {
-    console.log("Pressed");
+    router.push(`/gallery`);
   };
 
   if (permission === null) {
@@ -36,11 +84,7 @@ const Photos = () => {
 
   if (isCameraActive) {
     return (
-
-      <CameraView
-        ref={cameraRef}
-        style={StyleSheet.absoluteFill}
-      >
+      <CameraView ref={cameraRef} style={StyleSheet.absoluteFill}>
         <View style={styles.cameraOverlay}>
           <TouchableOpacity onPress={exitCamera} style={styles.exitButton}>
             <Ionicons name="exit" size={60} color="white" />
@@ -50,7 +94,6 @@ const Photos = () => {
           </TouchableOpacity>
         </View>
       </CameraView>
-
     );
   }
 
@@ -153,4 +196,3 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
-
