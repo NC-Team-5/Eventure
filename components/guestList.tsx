@@ -4,6 +4,8 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  Linking,
+  Button,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { db } from "@/firebaseConfig";
@@ -17,15 +19,16 @@ import { collection, getDocs } from "firebase/firestore";
 const GuestList = () => {
   const [isAddingGuest, setAddingGuest] = useState(false);
   const [newGuest, setNewGuest] = useState("");
-  const [guestList, setGuestList] = useState();
+  const [guestList, setGuestList] = useState([
+    "christianpoed@gmail.com",
+    "bailey06021@sky.com",
+  ]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
+  useEffect(() => {}, [setGuestList]);
 
-  const fetchEventGuestList = async () => {
+  /*   const fetchEventGuestList = async () => {
     try {
       const eventCollection = collection(
         db,
@@ -43,63 +46,65 @@ const GuestList = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchEvents = async () => {
-    try {
-      const eventsCollection = collection(db, "test-events");
-      const querySnapshot = await getDocs(eventsCollection);
-      const allEvents = querySnapshot.docs.map((doc) => ({
-        location: doc.data().eventLocation,
-        numOfGuests: doc.data().eventGuests.length,
-        date: new Date(doc.data().eventDate).toLocaleString(),
-        name: doc.data().eventName,
-        host: doc.data().eventHost.hostName,
-        guests: doc.data().eventGuests,
-      }));
-      setEvents(allEvents);
-    } catch (err) {
-      console.error("Error fetching events:", err);
-      setError("Failed to fetch events");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  console.log(events, "<---guestList");
+  }; */
 
   const handlePress = () => {
     console.log("Add Guest");
     setAddingGuest(true);
   };
 
-  const handleAddItem = () => {
+  const handleAddGuest = () => {
     if (newGuest.trim() !== "") {
       console.log("New Guest:", newGuest);
       setNewGuest("");
       setAddingGuest(false);
+      setGuestList([...guestList, newGuest]);
     }
+  };
+
+  const sendEmail = (guest) => {
+    const recipient = { guest };
+    const subject = "Let's have an eventure!";
+    const body =
+      "Let's get together - join my event in the Eventure app and let everyone know what you can bring: http://localhost:8081/event";
+
+    const emailUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    Linking.canOpenURL(emailUrl)
+      .then((supported) => {
+        if (!supported) {
+          Alert.alert("Error", "Email client is not available.");
+        } else {
+          Linking.openURL(emailUrl);
+        }
+      })
+      .catch((err) => console.error("Error opening email client: ", err));
   };
 
   return (
     <>
       <View style={card.box}>
         <View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}> </Text>
-          </View>
-
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}> </Text>
-          </View>
-
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}> </Text>
-          </View>
-
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}> </Text>
-          </View>
+          {guestList.map((guest) => {
+            return (
+              <View style={{ flexDirection: "row" }}>
+                <Text style={textBox.box}>{guest}</Text>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: "#000",
+                    borderRadius: 8,
+                    padding: 12,
+                    margin: 5,
+                  }}
+                  onPress={sendEmail}
+                >
+                  <Text style={{ fontSize: 13, color: "#fff" }}>
+                    Email invite
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
         </View>
 
         {isAddingGuest ? (
@@ -123,7 +128,7 @@ const GuestList = () => {
                 padding: 12,
                 margin: 5,
               }}
-              onPress={handleAddItem}
+              onPress={handleAddGuest}
             >
               <Text style={{ fontSize: 13, color: "#fff" }}>Add</Text>
             </TouchableOpacity>
