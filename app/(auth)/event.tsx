@@ -5,7 +5,7 @@ import Photos from "@/components/camera";
 
 export default function Event() {
   return (
-<SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.title}>Christians Funeral</Text>
@@ -14,7 +14,7 @@ export default function Event() {
           <Photos />
           {/* <Map /> */}
         </ScrollView>
-        </View>
+      </View>
     </SafeAreaView>
   );
 }
