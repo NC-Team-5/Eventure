@@ -30,6 +30,8 @@ export default function EventCreation() {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
+  const isButtonDisabled = !eventName || !selectedDateTime || !selectedLocation;
+
   const addItem = () => {
     if (newItem) {
       setItemsList([...itemsList, newItem]);
@@ -251,8 +253,14 @@ export default function EventCreation() {
               {renderSearchResults()}
 
               {/* Submit Button */}
-              <TouchableOpacity onPress={submitEvent} style={styles.button}>
-                <Text style={styles.buttonText}>Create Event ✨</Text>
+              <TouchableOpacity
+                onPress={submitEvent}
+                style={[styles.button, isButtonDisabled && styles.buttonDisabled]}
+                disabled={isButtonDisabled} // Disable when criteria aren't met
+              >
+                <Text style={styles.buttonText}>
+                  Create Event ✨
+                </Text>
               </TouchableOpacity>
             </View>
           </KeyboardAwareScrollView>
@@ -337,9 +345,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
   },
+  buttonDisabled: {
+    backgroundColor: "#A0D3D0"
+  },
   buttonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
-  },
+  }
 });
