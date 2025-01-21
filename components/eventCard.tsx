@@ -8,43 +8,12 @@ const EventCard = ({
   event,
 }: {
   event: {
-    id: string
     name: string;
-    location: string;
+    host: string;
     date: string;
     numOfGuests: number;
   };
 }) => {
-  const [selectedDateTime, setSelectedDateTime] = useState(new Date());
-
-  const getOrdinalSuffix = (day) => {
-    if (day > 3 && day < 21) return "th";
-    switch (day % 10) {
-      case 1:
-        return "st";
-      case 2:
-        return "nd";
-      case 3:
-        return "rd";
-      default:
-        return "th";
-    }
-  };
-
-  const formatDateWithOrdinal = (date) => {
-    const weekday = date.toLocaleString("en-GB", { weekday: "short" });
-    const month = date.toLocaleString("en-GB", { month: "long" });
-    const day = date.getDate();
-    const year = date.getFullYear();
-    const time = date.toLocaleString("en-GB", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-
-    return `${weekday} ${month} ${day}${getOrdinalSuffix(day)} ${year} @ ${time}`;
-  };
-
   const imageUrl =
     "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/three-friends.png?alt=media&token=85cabf5a-9048-47eb-820f-90e138b422de";
 
@@ -65,6 +34,7 @@ const EventCard = ({
         <View>
           <View style={card.box2}>
             <Text style={textBox.box}>{event.name}</Text>
+            <Text style={textBox.box}>Host: {event.host}</Text>
             <Text style={textBox.box}>
               <Ionicons
                 name="person"
@@ -74,11 +44,7 @@ const EventCard = ({
               />{" "}
               {event.numOfGuests}
             </Text>
-          </View>
-          <View style={card.box2}>
-            <Text style={textBox.box}>
-              {formatDateWithOrdinal(selectedDateTime)}
-            </Text>
+            <Text style={textBox.box}>{event.date}</Text>
           </View>
         </View>
       </View>
@@ -111,6 +77,7 @@ const card = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
+    marginRight: 80,
   },
 });
 
