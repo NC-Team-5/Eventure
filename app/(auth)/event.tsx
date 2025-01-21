@@ -5,16 +5,16 @@ import Photos from "@/components/camera";
 
 export default function Event() {
   return (
-    <SafeAreaView style={styles.container}>
-      <View>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Christians Funeral</Text>
-        <ItemList />
-        <GuestList />
-        <Photos />
-        {/* <Map /> */}
-      </ScrollView>
-      </View>
+<SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Text style={styles.title}>Christians Funeral</Text>
+          <ItemList />
+          <GuestList />
+          <Photos />
+          {/* <Map /> */}
+        </ScrollView>
+        </View>
     </SafeAreaView>
   );
 }
