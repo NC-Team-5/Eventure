@@ -143,6 +143,7 @@ export default function EventCreation() {
             name: item,
             addedBy: auth.currentUser?.displayName,
             checkedBy: "",
+            isChecked: false,
           });
         }
       }
