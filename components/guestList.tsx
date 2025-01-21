@@ -4,45 +4,123 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  Linking,
+  Button,
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { db } from "@/firebaseConfig";
+import {
+  collection,
+  getDocs,
+  query,
+  getDoc,
+  setDoc,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
+
+//TO DO
+// Get list of attendees from the event in Firebase, and setGuestList array
+// add to setNewGuest to add it to the setGuestList array
+// upload the new guest list to the Firebase event
 
 const GuestList = () => {
   const [isAddingGuest, setAddingGuest] = useState(false);
   const [newGuest, setNewGuest] = useState("");
+  const [guestList, setGuestList] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    fetchEventGuestList();
+  }, [setGuestList]);
+
+  const docRef = doc(db, "test-events", "FaOYgldrsQjK4aHdq8vH");
+
+  const fetchEventGuestList = () => {
+    getDoc(docRef).then((doc) => {
+      setGuestList(doc.data().eventGuests);
+    });
+  };
+
+  /*   const uploadGuest = (guestList) => {
+    setDoc(docRef, { guestList }, { merge: true });
+  };
+ */
   const handlePress = () => {
     console.log("Add Guest");
     setAddingGuest(true);
   };
 
-  const handleAddItem = () => {
+  const handleAddGuest = () => {
     if (newGuest.trim() !== "") {
       console.log("New Guest:", newGuest);
       setNewGuest("");
       setAddingGuest(false);
+      setGuestList([...guestList, newGuest]);
+      //   uploadGuest(guestList);
     }
+  };
+
+  const sendEmail = (guest) => {
+    const recipient = guest;
+    const subject = "Let's have an Eventure!";
+    const body = `Let's get together - join my Graduation event in the Eventure app and let everyone know what you can bring: http://myapp/event`;
+
+    const emailUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    Linking.canOpenURL(emailUrl)
+      .then((supported) => {
+        if (!supported) {
+          Alert.alert("Error", "Email client is not available.");
+        } else {
+          Linking.openURL(emailUrl);
+        }
+      })
+      .catch((err) => console.error("Error opening email client: ", err));
+  };
+
+  const shareToWhatsApp = () => {
+    const message = `Let's get together - join my Graduation event in the Eventure app and let everyone know what you can bring: http://myapp/event`;
+    const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(message)}`;
+
+    Linking.canOpenURL(whatsappUrl)
+      .then((supported) => {
+        if (!supported) {
+          Alert.alert("Error", "WhatsApp is not installed on your device.");
+        } else {
+          Linking.openURL(whatsappUrl);
+        }
+      })
+      .catch((err) => console.error("Error opening WhatsApp: ", err));
   };
 
   return (
     <>
       <View style={card.box}>
         <View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}> </Text>
-          </View>
-
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}> </Text>
-          </View>
-
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}> </Text>
-          </View>
-
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}> </Text>
-          </View>
+          {guestList.map((guest, index) => {
+            return (
+              <View key={index} style={{ flexDirection: "row" }}>
+                <Text style={textBox.box}>{guest}</Text>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: "#000",
+                    borderRadius: 8,
+                    padding: 12,
+                    margin: 5,
+                  }}
+                  onPress={() => {
+                    sendEmail(guest);
+                  }}
+                >
+                  <Text style={{ fontSize: 13, color: "#fff" }}>
+                    Email invite
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
         </View>
 
         {isAddingGuest ? (
@@ -66,7 +144,7 @@ const GuestList = () => {
                 padding: 12,
                 margin: 5,
               }}
-              onPress={handleAddItem}
+              onPress={handleAddGuest}
             >
               <Text style={{ fontSize: 13, color: "#fff" }}>Add</Text>
             </TouchableOpacity>
@@ -79,6 +157,13 @@ const GuestList = () => {
             <Text style={card.box2}>Add Guest</Text>
           </TouchableOpacity>
         )}
+        <Text style={textBox.box}>Share the invite:</Text>
+        <TouchableOpacity
+          onPress={shareToWhatsApp}
+          style={{ marginTop: 10, width: "98%" }}
+        >
+          <Text style={card.textField}>Share to Whatsapp</Text>
+        </TouchableOpacity>
       </View>
     </>
   );
