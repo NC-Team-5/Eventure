@@ -28,7 +28,6 @@ export default function SignInPage() {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log("Successfully logged in as:", user.email);
-        Alert.alert("Success!", `Logged in as ${user.email}`);
       })
       .catch((error) => {
         console.log("Login error:", error.code, error.message);

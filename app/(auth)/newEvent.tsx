@@ -18,6 +18,7 @@ import * as Location from "expo-location";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { db, auth } from "../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
+import { ThemedText } from "@/components/ThemedText";
 
 export default function EventCreation() {
   const [eventName, setEventName] = useState("");
@@ -28,6 +29,8 @@ export default function EventCreation() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
+
+  const isButtonDisabled = !eventName || !selectedDateTime || !selectedLocation;
 
   const addItem = () => {
     if (newItem) {
@@ -141,12 +144,12 @@ export default function EventCreation() {
 
       setEventName("");
       setItemsList([]);
-      setSelectedLocation(null);
+      setSelectedLocation("");
       setSearchQuery("");
     }
   };
 
-  const renderItem = ({ item }) => <Text style={styles.item}>{item}</Text>;
+  const renderItem = ({ item }) => <Text style={styles.item}>{`☑️ ${item}`}</Text>;
 
   const renderSearchResults = () => (
     <View style={styles.searchResultsContainer}>
@@ -187,8 +190,9 @@ export default function EventCreation() {
             keyboardShouldPersistTaps="handled"
           >
             <View>
+              <Text style={styles.title}>🎟️ Create Your Next Event</Text>
               {/* Event Name Input */}
-              <Text style={styles.sectionTitle}>🎟️ Create Event</Text>
+              <Text style={styles.sectionTitle}>🏷️ Event Name</Text>
               <TextInput
                 style={styles.input}
                 autoCapitalize="words"
@@ -199,7 +203,7 @@ export default function EventCreation() {
               />
 
               {/* Add Item Input */}
-              <Text style={styles.sectionTitle}>📋 Add Items</Text>
+              <Text style={styles.sectionTitle}>📋 Items</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Add Items"
@@ -215,7 +219,8 @@ export default function EventCreation() {
 
               {/* Items List (using FlatList) */}
               {itemsList.length === 0 ? (
-                <Text style={styles.noItemsText}>No items added yet. Add some!</Text>
+                <><Text style={styles.noItemsText}>No items yet? Add some!</Text>
+                </>
               ) : (
                 <FlatList
                   data={itemsList}
@@ -248,8 +253,14 @@ export default function EventCreation() {
               {renderSearchResults()}
 
               {/* Submit Button */}
-              <TouchableOpacity onPress={submitEvent} style={styles.button}>
-                <Text style={styles.buttonText}>Create Event ✨</Text>
+              <TouchableOpacity
+                onPress={submitEvent}
+                style={[styles.button, isButtonDisabled && styles.buttonDisabled]}
+                disabled={isButtonDisabled} // Disable when criteria aren't met
+              >
+                <Text style={styles.buttonText}>
+                  Create Event ✨
+                </Text>
               </TouchableOpacity>
             </View>
           </KeyboardAwareScrollView>
@@ -272,7 +283,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#4CA19E",
     marginVertical: 10,
@@ -290,13 +301,19 @@ const styles = StyleSheet.create({
   item: {
     fontSize: 16,
     color: "#333",
+    marginBottom: 10,
+  },
+  noItemsText: {
+    fontSize: 16,
+    color: "#333",
     marginBottom: 5,
   },
   dateTimeText: {
     fontSize: 18,
     color: "#4CA19E",
     textDecorationLine: "underline",
-    marginBottom: 20,
+    marginBottom: 10,
+    marginTop: 5,
   },
   searchInput: {
     height: 44,
@@ -328,9 +345,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
   },
+  buttonDisabled: {
+    backgroundColor: "#A0D3D0"
+  },
   buttonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
-  },
+  }
 });

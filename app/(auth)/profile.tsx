@@ -1,225 +1,239 @@
 import {
   StyleSheet,
   Alert,
-  Button,
   Text,
-  Pressable,
   TextInput,
   View,
-  Image,
   ScrollView,
+  TouchableOpacity,
+  SafeAreaView,
 } from "react-native";
-import { ThemedText } from "@/components/ThemedText";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
-  getAuth,
   signOut,
   updateProfile,
   updateEmail,
   sendPasswordResetEmail,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
 } from "firebase/auth";
-import "firebase/storage";
-import * as firebase from "firebase/app";
-import { app } from "../../firebaseConfig";
+import { auth } from "../../firebaseConfig";
 import { router } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
-import ImageViewer from "@/components/profilePage/ProfilePic";
 import ProfilePicSelect from "@/components/profilePage/ProfilePicSelect";
 
 export default function ProfileScreen() {
-  const auth = getAuth(app);
   const user = auth.currentUser;
 
-  const [displayName, setDisplayName] = React.useState(user?.displayName);
-  const [newEmailAddress, setNewEmailAddress] = React.useState(user?.email);
+  const [displayName, setDisplayName] = useState(user?.displayName || "");
+  const [newEmailAddress, setNewEmailAddress] = useState(user?.email || "");
+  const [errors, setErrors] = useState({});
+  const [isFormValid, setIsFormValid] = useState(false);
 
-  const [selectedImage, setSelectedImage] = React.useState<string | undefined>(
-    undefined
-  );
-  const [displayReAuth, setDisplayReAuth] = React.useState(false);
-  const [reAuthPassword, setReAuthPassword] = React.useState(null);
-  const [reAuthEmail, setReAuthEmail] = React.useState(null);
+  // Flags to track if fields are touched
+  const [isDisplayNameTouched, setIsDisplayNameTouched] = useState(false);
+  const [isEmailTouched, setIsEmailTouched] = useState(false);
+
+  useEffect(() => {
+    validateForm();
+  }, [displayName, newEmailAddress]);
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (!/\S+@\S+\.\S+/.test(newEmailAddress)) {
+      errors.email = "Enter a valid email address";
+    }
+
+    if (!displayName || displayName.trim().length < 2) {
+      errors.name = "Display name must be at least 2 characters";
+    }
+
+    setErrors(errors);
+    setIsFormValid(Object.keys(errors).length === 0);
+  };
 
   const handleDisplayNameChange = () => {
-    updateProfile(user, {
-      displayName: displayName,
-    })
-      .then(() => {
-        //Your new username
-      })
-      .catch((error) => {
-        // An error occurred
-        // ...
-      });
-  };
-  const handleEmailChange = () => {
-    updateEmail(auth.currentUser, newEmailAddress)
-      .then(() => {
-        //Your new email
-      })
-      .catch((error) => {
-        alert("Email address not updated, please try again.");
-      });
+    if (isFormValid) {
+      updateProfile(user, { displayName })
+        .then(() => {
+          Alert.alert(`We'll call you ${displayName}!`);
+        })
+        .catch((error) => {
+          Alert.alert("Error", error.message);
+        });
+    } else {
+      Alert.alert("Invalid details", "Please check the form for errors.");
+    }
   };
 
-  //Re-authentication handler when user changes email address
-  const handleReAuth = () => {
-    const credential = EmailAuthProvider.credential(user.email, reAuthPassword);
-    reauthenticateWithCredential(user, credential)
-      .then(() => {
-        // Successfully logged in
-      })
-      .catch((error) => {
-        // An error ocurred
-        alert("Sorry, we could not log you in. Please try again.");
-      });
+  const handleEmailChange = () => {
+    if (isFormValid) {
+      updateEmail(auth.currentUser, newEmailAddress)
+        .then(() => {
+          Alert.alert(`📧 Your new email address is ${newEmailAddress}`);
+        })
+        .catch((error) => {
+          Alert.alert("Error", error.message);
+        });
+    }
   };
 
   const handlePasswordChange = () => {
     sendPasswordResetEmail(auth, user?.email)
       .then(() => {
-        alert(
-          "Your password reset email has been sent. Please check your email, including your spam folder."
-        );
+        Alert.alert("🔐 Password reset email sent");
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
+        Alert.alert("Error", error.message);
       });
   };
 
-  //Sign Out Handler
   const handleSignOut = () => {
-    const auth = getAuth(app);
-    signOut(auth).then(() => {
-      router.replace("/");
-      Alert.alert("Signed Out", "You have been signed out");
-    });
+    signOut(auth)
+      .then(() => {
+        router.replace("/");
+      })
+      .catch((error) => {
+        Alert.alert("Error", error.message);
+      });
   };
 
-  const placeholderImage = require("../../assets/images/Profile_avatar_placeholder_large.png");
   return (
-    <>
+    <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <ThemedText>Welcome, {user?.displayName}</ThemedText>
-        <View>
-          <View style={styles.profileContainer}>
-            <ProfilePicSelect auth={auth} user={user} />
-          </View>
+        <Text style={styles.title}>Hey there, {user?.displayName} 👋</Text>
 
-          <View style={styles.profileContainer}>
-            <ThemedText>Change your Display Name</ThemedText>
-            <TextInput
-              style={styles.input}
-              onChangeText={setDisplayName}
-              value={displayName}
-            />
-            <Button
-              title="Update display name"
-              onPress={handleDisplayNameChange}
-            />
-          </View>
-          <View>
-            <ThemedText>Change your email address</ThemedText>
-            <TextInput
-              style={styles.input}
-              onChangeText={setNewEmailAddress}
-              value={newEmailAddress}
-              textContentType="emailAddress"
-            />
-            <Button
-              title="Update email"
-              onPress={() => {
-                setDisplayReAuth(true);
-              }}
-            />
+        <View style={styles.profileContainer}>
+          <ProfilePicSelect auth={auth} user={user} />
+        </View>
 
-            {
-              <View style={{ display: displayReAuth ? "flex" : "none" }}>
-                <ThemedText>
-                  Please re-enter your login details to update your email
-                  address.
-                </ThemedText>
-                <TextInput
-                  style={styles.input}
-                  onChangeText={setReAuthEmail}
-                  placeholder="Email address"
-                  keyboardType="email-address"
-                />
-                <TextInput
-                  style={styles.input}
-                  onChangeText={setReAuthPassword}
-                  secureTextEntry={true}
-                  placeholder="Password"
-                />
-                <Button
-                  title="Submit login details"
-                  onPress={() => {
-                    handleReAuth();
-                    handleEmailChange();
-                    setDisplayReAuth(false);
-                  }}
-                />
-              </View>
-            }
-          </View>
-          <View>
-            <ThemedText>Change your password</ThemedText>
-            <Button
-              title="Send password reset email"
-              onPress={handlePasswordChange}
-            />
-          </View>
-          <View>
-            <Button title="Log out" onPress={handleSignOut} />
-          </View>
+        <View style={styles.profileContainer}>
+          <Text style={styles.inputLabel}>Display Name</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={(text) => {
+              setDisplayName(text);
+              setIsDisplayNameTouched(true);
+            }}
+            placeholder={user?.displayName}
+            autoComplete='given-name'
+          />
+          {errors.name && <Text style={styles.error}>{errors.name}</Text>}
+          <TouchableOpacity
+            onPress={handleDisplayNameChange}
+            style={[
+              styles.button,
+              (!isDisplayNameTouched || !isFormValid) && styles.buttonDisabled,
+            ]}
+            disabled={!isDisplayNameTouched || !isFormValid}
+          >
+            <Text style={styles.buttonText}>Update display name</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.profileContainer}>
+          <Text style={styles.inputLabel}>Email Address</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={(text) => {
+              setNewEmailAddress(text);
+              setIsEmailTouched(true);
+            }}
+            keyboardType="email-address"
+            autoComplete="email"
+            placeholder={user?.email}
+          />
+          {errors.email && <Text style={styles.error}>{errors.email}</Text>}
+          <TouchableOpacity
+            onPress={handleEmailChange}
+            style={[
+              styles.button,
+              (!isEmailTouched || !isFormValid) && styles.buttonDisabled,
+            ]}
+            disabled={!isEmailTouched || !isFormValid}
+          >
+            <Text style={styles.buttonText}>Update email</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.profileContainer}>
+          <Text style={styles.inputLabel}>Change your password</Text>
+          <TouchableOpacity onPress={handlePasswordChange} style={styles.button}>
+            <Text style={styles.buttonText}>Send password reset email</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.profileContainer}>
+          <TouchableOpacity onPress={handleSignOut} style={styles.logOutButton}>
+            <Text style={styles.buttonText}>Log out</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+  container: {
+    padding: 30,
+    backgroundColor: "#F9F9F9",
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  scrollView: {
+    padding: 25,
+    marginBottom: 50,
+    backgroundColor: "#F9F9F9",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#4CA19E",
+    marginBottom: 20,
+    textAlign: "center",
   },
   input: {
-    height: 40,
-    margin: 12,
+    height: 50,
     borderWidth: 1,
-    padding: 10,
+    borderColor: "#4CA19E",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 5,
+    fontSize: 16,
+    color: "#333",
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   profileContainer: {
     marginBottom: 10,
   },
-  imageContainer: {
-    flex: 1,
+  logOutButton: {
+    backgroundColor: "#b2a591",
+    padding: 15,
+    borderRadius: 8,
     alignItems: "center",
+    marginTop: -5,
   },
-  image: {
-    flex: 1,
-    width: 250,
-    height: 250,
-    borderRadius: 18,
+  button: {
+    backgroundColor: "#4CA19E",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 5,
+    marginBottom: 10,
   },
-  scrollView: {
-    padding: 25,
-    marginBottom: 100,
+  buttonDisabled: {
+    backgroundColor: "#A0D3D0",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  error: {
+    color: "red",
+    fontSize: 14,
+    marginTop: 5,
+    marginBottom: 5,
   },
 });
