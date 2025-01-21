@@ -9,7 +9,15 @@ import {
 } from "react-native";
 import { useState, useEffect } from "react";
 import { db } from "@/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  getDoc,
+  setDoc,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
 
 //TO DO
 // Get list of attendees from the event in Firebase, and setGuestList array
@@ -19,35 +27,26 @@ import { collection, getDocs } from "firebase/firestore";
 const GuestList = () => {
   const [isAddingGuest, setAddingGuest] = useState(false);
   const [newGuest, setNewGuest] = useState("");
-  const [guestList, setGuestList] = useState([
-    "christianpoed@gmail.com",
-    "bailey06021@sky.com",
-  ]);
+  const [guestList, setGuestList] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {}, [setGuestList]);
+  useEffect(() => {
+    fetchEventGuestList();
+  }, [setGuestList]);
 
-  /*   const fetchEventGuestList = async () => {
-    try {
-      const eventCollection = collection(
-        db,
-        "test-events",
-        " 3hlJUNvfESwzk8XnUzB4"
-      );
-      const querySnapshot = await getDocs(eventCollection);
-      const allGuests = querySnapshot.docs.map((doc) => ({
-        guests: doc.data().eventGuests,
-      }));
-      setGuestList(allGuests);
-    } catch (err) {
-      console.error("Error fetching guests:", err);
-      setError("Failed to fetch guests");
-    } finally {
-      setLoading(false);
-    }
-  }; */
+  const docRef = doc(db, "test-events", "FaOYgldrsQjK4aHdq8vH");
 
+  const fetchEventGuestList = () => {
+    getDoc(docRef).then((doc) => {
+      setGuestList(doc.data().eventGuests);
+    });
+  };
+
+  /*   const uploadGuest = (guestList) => {
+    setDoc(docRef, { guestList }, { merge: true });
+  };
+ */
   const handlePress = () => {
     console.log("Add Guest");
     setAddingGuest(true);
@@ -59,14 +58,14 @@ const GuestList = () => {
       setNewGuest("");
       setAddingGuest(false);
       setGuestList([...guestList, newGuest]);
+      //   uploadGuest(guestList);
     }
   };
 
   const sendEmail = (guest) => {
-    const recipient = { guest };
-    const subject = "Let's have an eventure!";
-    const body =
-      "Let's get together - join my event in the Eventure app and let everyone know what you can bring: http://localhost:8081/event";
+    const recipient = guest;
+    const subject = "Let's have an Eventure!";
+    const body = `Let's get together - join my Graduation event in the Eventure app and let everyone know what you can bring: http://myapp/event`;
 
     const emailUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
@@ -81,13 +80,28 @@ const GuestList = () => {
       .catch((err) => console.error("Error opening email client: ", err));
   };
 
+  const shareToWhatsApp = () => {
+    const message = `Let's get together - join my Graduation event in the Eventure app and let everyone know what you can bring: http://myapp/event`;
+    const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(message)}`;
+
+    Linking.canOpenURL(whatsappUrl)
+      .then((supported) => {
+        if (!supported) {
+          Alert.alert("Error", "WhatsApp is not installed on your device.");
+        } else {
+          Linking.openURL(whatsappUrl);
+        }
+      })
+      .catch((err) => console.error("Error opening WhatsApp: ", err));
+  };
+
   return (
     <>
       <View style={card.box}>
         <View>
-          {guestList.map((guest) => {
+          {guestList.map((guest, index) => {
             return (
-              <View style={{ flexDirection: "row" }}>
+              <View key={index} style={{ flexDirection: "row" }}>
                 <Text style={textBox.box}>{guest}</Text>
                 <TouchableOpacity
                   style={{
@@ -96,7 +110,9 @@ const GuestList = () => {
                     padding: 12,
                     margin: 5,
                   }}
-                  onPress={sendEmail}
+                  onPress={() => {
+                    sendEmail(guest);
+                  }}
                 >
                   <Text style={{ fontSize: 13, color: "#fff" }}>
                     Email invite
@@ -141,6 +157,13 @@ const GuestList = () => {
             <Text style={card.box2}>Add Guest</Text>
           </TouchableOpacity>
         )}
+        <Text style={textBox.box}>Share the invite:</Text>
+        <TouchableOpacity
+          onPress={shareToWhatsApp}
+          style={{ marginTop: 10, width: "98%" }}
+        >
+          <Text style={card.textField}>Share to Whatsapp</Text>
+        </TouchableOpacity>
       </View>
     </>
   );
