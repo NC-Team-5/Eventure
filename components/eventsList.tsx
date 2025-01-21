@@ -19,6 +19,7 @@ const EventsList = () => {
         date: new Date(doc.data().eventDate).toLocaleString(),
         name: doc.data().eventName,
         host: doc.data().eventHost.hostName,
+        type: doc.data().eventType || "unknown",
       }));
       setEvents(allEvents);
     } catch (err) {

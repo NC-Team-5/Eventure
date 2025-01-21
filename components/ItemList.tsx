@@ -165,7 +165,7 @@ const textBox = StyleSheet.create({
     padding: 12,
     margin: 5,
     fontSize: 13,
-    width: '78%',
+    width: "78%",
     height: 40,
 
     shadowColor: "#000",
