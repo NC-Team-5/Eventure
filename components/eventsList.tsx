@@ -17,24 +17,23 @@ const EventsList = () => {
 
       const allEvents = querySnapshot.docs.map((doc) => {
         const eventData = doc.data();
-        const eventDate = new Date(eventData.eventDate); // Assuming eventDate is a valid date string/timestamp
+        const eventDate = new Date(eventData.eventDate);
 
         return {
+          eventId: doc.id,
           numOfGuests: eventData.eventGuests.length,
-          date: eventDate, // Store the Date object for sorting
+          date: eventDate,
           name: eventData.eventName,
           host: eventData.eventHost.hostName,
           type: eventData.eventType || "unknown",
         };
       });
 
-      // Sort events by date: closest to current date first
       const sortedEvents = allEvents.sort((a, b) => a.date - b.date);
 
-      // Format the date using toLocaleString() after sorting
       const formattedEvents = sortedEvents.map((event) => ({
         ...event,
-        date: event.date.toLocaleString(), // Format the date for display
+        date: event.date.toLocaleString(),
       }));
 
       setEvents(formattedEvents);
