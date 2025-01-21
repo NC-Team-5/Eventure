@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   Text,
@@ -5,22 +6,22 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  Modal,
 } from "react-native";
-import { getDownloadURL, getStorage, ref } from "firebase/storage";
-import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import { db } from "../../firebaseConfig.js";
+import { db } from "../../firebaseConfig";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const photoGallery = () => {
+const PhotoGallery: React.FC = () => {
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
-  const storage = getStorage();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const q = query(collection(db, "gallery"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const urls = snapshot.docs.map((doc) => doc.data().url);
+      const urls = snapshot.docs.map((doc) => doc.data().url as string);
       setPhotoUrls(urls);
     });
 
@@ -33,49 +34,113 @@ const photoGallery = () => {
 
   return (
     <>
-      <ScrollView>
-        <TouchableOpacity onPress={backToEventPage}>
-          <Text style={styles.button}>Back</Text>
-        </TouchableOpacity>
-        <View style={styles.container}>
-          {photoUrls.length > 0 ? (
-            photoUrls.map((url, index) => (
-              <Image key={index} source={{ uri: url }} style={styles.image} />
-            ))
-          ) : (
-            <Text style={styles.text}>No photos available</Text>
-          )}
-        </View>
-      </ScrollView>
+      <SafeAreaView>
+        <ScrollView>
+          <View>
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              onPress={backToEventPage}
+            >
+              <Text style={styles.button}>Back</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.container}>
+            {photoUrls.length > 0 ? (
+              photoUrls.map((url, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => setSelectedImage(url)}
+                >
+                  <Image source={{ uri: url }} style={styles.image} />
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={styles.text}>No photos available</Text>
+            )}
+          </View>
+        </ScrollView>
+
+        {/* Modal for Enlarged Image */}
+        <Modal
+          visible={selectedImage !== null}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setSelectedImage(null)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Image
+                source={{ uri: selectedImage ?? "" }}
+                style={styles.enlargedImage}
+              />
+              <TouchableOpacity
+                onPress={() => setSelectedImage(null)}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
     </>
   );
 };
 
-export default photoGallery;
+export default PhotoGallery;
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
     flexDirection: "row",
-    flexWrap: "wrap",
+    justifyContent: "space-between",
+    flexWrap: 'wrap',
+    margin: 10,
   },
   image: {
-    width: 100,
-    aspectRatio: 1 | 1,
-    margin: 10,
+    width: 80, 
+    aspectRatio: 1,
+    margin: 5, 
+    borderRadius: 10,
   },
   text: {
     fontSize: 16,
     color: "#333",
+    textAlign: "center",
+    marginTop: 20,
   },
   button: {
     margin: 10,
     backgroundColor: "#000",
-    width: 50,
-    height: 30,
+    width: 70,
+    height: 35,
     color: "#fff",
     textAlign: "center",
-    justifyContent: "center",
+    lineHeight: 35,
     borderRadius: 6,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  enlargedImage: {
+    width: 300,
+    height: 300,
+  },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: "#000",
+    padding: 10,
+    borderRadius: 6,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });

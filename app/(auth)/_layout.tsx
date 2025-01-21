@@ -73,6 +73,16 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="gallery"
+        options={{
+          href: null,
+          title: "Gallery",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="calendar.badge.checkmark" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
