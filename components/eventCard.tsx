@@ -8,6 +8,7 @@ const EventCard = ({
   event,
 }: {
   event: {
+    eventId: string;
     name: string;
     host: string;
     date: string;
@@ -40,8 +41,7 @@ const EventCard = ({
   const router = useRouter();
 
   const handlePress = () => {
-    console.log("Event Card Pressed");
-    router.replace('event')
+    router.replace(`/(auth)/${event.eventId}`)
   };
 
   return (

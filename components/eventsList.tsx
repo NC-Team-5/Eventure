@@ -15,9 +15,10 @@ const EventsList = () => {
       const eventsCollection = collection(db, "test-events");
       const querySnapshot = await getDocs(eventsCollection);
 
+
       const allEvents = querySnapshot.docs.map((doc) => {
         const eventData = doc.data();
-        const eventDate = new Date(eventData.eventDate); // Assuming eventDate is a valid date string/timestamp
+        const eventDate = new Date(eventData.eventDate);
 
         return {
           numOfGuests: eventData.eventGuests.length,
@@ -34,7 +35,8 @@ const EventsList = () => {
       // Format the date using toLocaleString() after sorting
       const formattedEvents = sortedEvents.map((event) => ({
         ...event,
-        date: event.date.toLocaleString(), // Format the date for display
+        date: event.date.toLocaleString(),
+
       }));
 
       setEvents(formattedEvents);

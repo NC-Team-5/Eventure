@@ -6,64 +6,117 @@ import {
   TextInput,
 } from "react-native";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { db, auth } from "@/firebaseConfig";
+import { collection, query, where, getDocs, addDoc, updateDoc, doc } from "firebase/firestore"; // Firebase Firestore methods
 
-const ItemList = () => {
+const ItemList = ({ eventId }) => {
   const [isAddingItem, setAddingItem] = useState(false);
   const [newItem, setNewItem] = useState("");
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch items from Firestore
+  useEffect(() => {
+    const fetchItems = async () => {
+      setLoading(true);
+      try {
+        const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
+        const q = query(eventItemsCollection);
+        const querySnapshot = await getDocs(q);
+
+        const fetchedItems = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+          isChecked: doc.data().isChecked,
+        }));
+
+        setItems(fetchedItems);
+      } catch (err) {
+        console.error("Error fetching items:", err);
+        setError("Failed to fetch items");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItems();
+  }, [eventId]);
 
   const handlePress = () => {
     console.log("Add Item");
     setAddingItem(true);
   };
 
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     if (newItem.trim() !== "") {
-      console.log("New Item:", newItem);
-      setNewItem("");
-      setAddingItem(false);
+      try {
+
+        const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
+        await addDoc(eventItemsCollection, {
+          name: newItem,
+          isChecked: false,
+          checkedBy: "",
+          addedBy: auth.currentUser?.displayName
+        });
+
+
+        setNewItem("");
+        setAddingItem(false);
+
+
+        const eventItemsCollectionRef = collection(db, "test-events", eventId, "eventItems");
+        const querySnapshot = await getDocs(eventItemsCollectionRef);
+        const updatedItems = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+          isChecked: doc.data().isChecked,
+        }));
+
+        setItems(updatedItems);
+      } catch (err) {
+        console.error("Error adding item:", err);
+        setError("Failed to add item");
+      }
     }
   };
+
+  const handleCheckboxChange = async (itemId, isChecked) => {
+    try {
+      const itemRef = doc(db, "test-events", eventId, "eventItems", itemId);
+      await updateDoc(itemRef, {
+        isChecked: isChecked,
+      });
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === itemId ? { ...item, isChecked: isChecked } : item
+        )
+      );
+    } catch (err) {
+      console.error("Error updating checkbox:", err);
+      setError("Failed to update checkbox");
+    }
+  };
+
+  if (loading) return <Text>Loading items...</Text>;
+  if (error) return <Text>{error}</Text>;
 
   return (
     <>
       <View style={card.box}>
         <View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}>6 Pack of Beer</Text>
-            <BouncyCheckbox
-              size={35}
-              style={{ marginLeft: 10 }}
-              onPress={(isChecked) => {}}
-            />
-          </View>
-
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}>Chicken</Text>
-            <BouncyCheckbox
-              size={35}
-              style={{ marginLeft: 10 }}
-              onPress={(isChecked) => {}}
-            />
-          </View>
-
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}>Flowers</Text>
-            <BouncyCheckbox
-              size={35}
-              style={{ marginLeft: 10 }}
-              onPress={(isChecked) => {}}
-            />
-          </View>
-
-          <View style={{ flexDirection: "row" }}>
-            <Text style={textBox.box}>Radio</Text>
-            <BouncyCheckbox
-              size={35}
-              style={{ marginLeft: 10 }}
-              onPress={(isChecked) => {}}
-            />
-          </View>
+          {items.map((item) => (
+            <View style={{ flexDirection: "row" }} key={item.id}>
+              <Text style={textBox.box}>{item.name}</Text>
+              <BouncyCheckbox
+                size={35}
+                style={{ marginLeft: 10 }}
+                isChecked={item.isChecked}
+                onPress={(isChecked) => handleCheckboxChange(item.id, isChecked)}
+              />
+            </View>
+          ))}
         </View>
 
         {isAddingItem ? (
@@ -118,7 +171,6 @@ const card = StyleSheet.create({
     marginHorizontal: 35,
     borderRadius: 10,
 
-    // iOS Drop Shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
