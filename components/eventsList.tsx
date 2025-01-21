@@ -15,6 +15,7 @@ const EventsList = () => {
       const eventsCollection = collection(db, "test-events");
       const querySnapshot = await getDocs(eventsCollection);
       const allEvents = querySnapshot.docs.map((doc) => ({
+        eventId: doc.id,
         numOfGuests: doc.data().eventGuests.length,
         date: new Date(doc.data().eventDate).toLocaleString(),
         name: doc.data().eventName,
