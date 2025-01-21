@@ -1,39 +1,24 @@
 import {
   StyleSheet,
-  Alert,
-  Button,
   Text,
-  Pressable,
-  TextInput,
+  TouchableOpacity,
   View,
-  Image,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import React from "react";
 import "firebase/storage";
-import * as firebase from "firebase/app";
-import { app } from "../../firebaseConfig";
-import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import ImageViewer from "@/components/profilePage/ProfilePic";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import {
-  getAuth,
-  signOut,
   updateProfile,
-  updateEmail,
-  sendPasswordResetEmail,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
+import { db, auth } from "../../firebaseConfig";
 
 const ProfilePicSelect = () => {
-  const auth = getAuth(app);
   const user = auth.currentUser;
   const storage = getStorage();
-  const profilePicsRef = ref(storage, `${user?.displayName}.jpg`);
   const userProfilePicsRef = ref(
     storage,
     `profilePics/${user?.displayName}.jpg`
@@ -48,24 +33,20 @@ const ProfilePicSelect = () => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = function () {
-        // return the blob
         resolve(xhr.response);
       };
-
       xhr.onerror = function () {
-        // something went wrong
         reject(new Error("uriToBlob failed"));
-      }; // this helps us get a blob
+      };
       xhr.responseType = "blob";
       xhr.open("GET", uri, true);
-
       xhr.send(null);
     });
   };
 
   const uploadToFirebase = (blob) => {
     uploadBytes(userProfilePicsRef, blob)
-      .then((snapshot) => {
+      .then(() => {
         const profilePicUrl = getDownloadURL(
           ref(storage, `profilePics/${user?.displayName}.jpg`)
         ).then((url) => {
@@ -108,7 +89,6 @@ const ProfilePicSelect = () => {
           .then((blob) => {
             return uploadToFirebase(blob);
           })
-          .then((snapshot) => { })
           .catch((error) => {
             throw error;
           });
@@ -121,15 +101,15 @@ const ProfilePicSelect = () => {
   return (
     <>
       <View style={styles.profileContainer}>
-        <ThemedText>Change your profile pic</ThemedText>
         <View style={styles.imageContainer}>
           <ImageViewer
-            style={{ width: 250, height: 250 }}
             imgSource={profilePic}
             selectedImage={selectedImage}
           />
-          <View>
-            <Button title="Choose profile pic" onPress={handleOnPress} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={handleOnPress}>
+              <Text style={styles.buttonText}>Choose from your photo library</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -138,39 +118,28 @@ const ProfilePicSelect = () => {
 };
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-  input: {
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-  },
   profileContainer: {
     marginBottom: 10,
+    alignItems: "center",
   },
   imageContainer: {
     alignItems: "center",
+    marginBottom: 10,
   },
-  image: {
-    flex: 1,
-    width: 250,
-    height: 250,
-    borderRadius: 18,
+  buttonContainer: {
+    marginTop: 10,
+  },
+  button: {
+    backgroundColor: "#4CA19E",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
