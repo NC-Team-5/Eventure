@@ -13,12 +13,14 @@ import {
   Platform,
   SafeAreaView,
 } from "react-native";
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import * as Location from "expo-location";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { db, auth } from "../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import { ThemedText } from "@/components/ThemedText";
+
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 export default function EventCreation() {
   const [eventName, setEventName] = useState("");
@@ -29,6 +31,9 @@ export default function EventCreation() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedEventType, setSelectedEventType] = useState<string | null>(
+    null
+  );
 
   const isButtonDisabled = !eventName || !selectedDateTime || !selectedLocation;
 
@@ -36,7 +41,6 @@ export default function EventCreation() {
     if (newItem) {
       setItemsList([...itemsList, newItem]);
       setNewItem("");
-
     }
   };
 
@@ -120,6 +124,7 @@ export default function EventCreation() {
         hostName: auth.currentUser?.displayName,
       },
       eventGuests: [],
+      eventType: selectedEventType,
     };
 
     if (eventName && selectedDateTime && selectedLocation) {
@@ -147,10 +152,13 @@ export default function EventCreation() {
       setItemsList([]);
       setSelectedLocation("");
       setSearchQuery("");
+      setSelectedEventType(null);
     }
   };
 
-  const renderItem = ({ item }) => <Text style={styles.item}>{`☑️ ${item}`}</Text>;
+  const renderItem = ({ item }) => (
+    <Text style={styles.item}>{`☑️ ${item}`}</Text>
+  );
 
   const renderSearchResults = () => (
     <View style={styles.searchResultsContainer}>
@@ -176,11 +184,18 @@ export default function EventCreation() {
       ))}
     </View>
   );
+  const handleEventTypeChange = (eventType: string) => {
+    if (selectedEventType === eventType) {
+      setSelectedEventType(null);
+    } else {
+      setSelectedEventType(eventType);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -192,6 +207,32 @@ export default function EventCreation() {
           >
             <View>
               <Text style={styles.title}>🎟️ Create Your Next Event</Text>
+
+              {/* Event Type Checkboxes */}
+              <Text style={styles.sectionTitle}>🎂 Event Type</Text>
+              <View style={styles.checkboxContainer}>
+                {["BBQ", "House Party", "Camping Trip", "Graduation"].map(
+                  (eventType) => (
+                    <View key={eventType} style={styles.checkboxRow}>
+                      <Text style={styles.checkboxLabel}>{eventType}</Text>
+                      <View>
+                        <BouncyCheckbox
+                          size={35}
+                          style={styles.checkbox}
+                          isChecked={selectedEventType === eventType}
+                          onPress={() => handleEventTypeChange(eventType)}
+                          fillColor="#4CA19E" // Green when checked
+                          iconStyle={{
+                            borderColor: "#4CA19E",
+                            borderRadius: 5,
+                          }}
+                          innerIconStyle={{ borderRadius: 5 }}
+                        />
+                      </View>
+                    </View>
+                  )
+                )}
+              </View>
               {/* Event Name Input */}
               <Text style={styles.sectionTitle}>🏷️ Event Name</Text>
               <TextInput
@@ -202,7 +243,6 @@ export default function EventCreation() {
                 maxLength={75}
                 onChangeText={(input) => setEventName(input)}
               />
-
               {/* Add Item Input */}
               <Text style={styles.sectionTitle}>📋 Items</Text>
               <TextInput
@@ -220,14 +260,19 @@ export default function EventCreation() {
 
               {/* Items List (using FlatList) */}
               {itemsList.length === 0 ? (
-                <><Text style={styles.noItemsText}>No items yet? Add some!</Text>
+                <>
+                  <Text style={styles.noItemsText}>
+                    No items yet? Add some!
+                  </Text>
                 </>
               ) : (
-                <FlatList
-                  data={itemsList}
-                  renderItem={renderItem}
-                  keyExtractor={(item, index) => `${item}-${index}`}
-                />
+                <View>
+                  <FlatList
+                    data={itemsList}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) => `${item}-${index}`}
+                  />
+                </View>
               )}
 
               {/* Date and Time */}
@@ -256,12 +301,13 @@ export default function EventCreation() {
               {/* Submit Button */}
               <TouchableOpacity
                 onPress={submitEvent}
-                style={[styles.button, isButtonDisabled && styles.buttonDisabled]}
+                style={[
+                  styles.button,
+                  isButtonDisabled && styles.buttonDisabled,
+                ]}
                 disabled={isButtonDisabled} // Disable when criteria aren't met
               >
-                <Text style={styles.buttonText}>
-                  Create Event ✨
-                </Text>
+                <Text style={styles.buttonText}>Create Event ✨</Text>
               </TouchableOpacity>
             </View>
           </KeyboardAwareScrollView>
@@ -273,7 +319,7 @@ export default function EventCreation() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: 5,
     backgroundColor: "#F9F9F9",
     flexGrow: 1,
   },
@@ -296,6 +342,24 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 15,
+    fontSize: 16,
+    color: "#333",
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 15,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+
+    marginBottom: 10,
+  },
+  checkbox: {
+    marginLeft: 10,
+  },
+  checkboxLabel: {
     fontSize: 16,
     color: "#333",
   },
@@ -347,11 +411,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   buttonDisabled: {
-    backgroundColor: "#A0D3D0"
+    backgroundColor: "#A0D3D0",
   },
   buttonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
-  }
+  },
 });

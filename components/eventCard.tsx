@@ -13,10 +13,30 @@ const EventCard = ({
     host: string;
     date: string;
     numOfGuests: number;
+    type: any;
   };
 }) => {
-  const imageUrl =
-    "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/three-friends.png?alt=media&token=85cabf5a-9048-47eb-820f-90e138b422de";
+  let imageUrl = "";
+  switch (event.type) {
+    case "BBQ":
+      imageUrl =
+        "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/image%20(2)(1).png?alt=media&token=ec4a1465-cb6d-423b-91ad-5482424f267c";
+      break;
+    case "House Party":
+      imageUrl =
+        "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/image%20(3)(1).png?alt=media&token=0e91d5dc-be9e-4284-aade-93d434f2db6f";
+      break;
+    case "Camping Trip":
+      imageUrl =
+        "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/image%20(5)(1).png?alt=media&token=da84c3f5-60fc-462d-8f82-f5fa8295565a";
+      break;
+    case "Graduation":
+      imageUrl =
+        "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/image%20(6)(1).png?alt=media&token=ed9015c1-f1f7-4cb0-8f5e-309997c1a7c1";
+      break;
+    default:
+      imageUrl = "https://via.placeholder.com/70";
+  }
 
   const router = useRouter();
 
