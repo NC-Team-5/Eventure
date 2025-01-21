@@ -2,11 +2,10 @@ import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useState, useRef } from "react";
-import { useRouter} from "expo-router";
-import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import * as FileSystem from "expo-file-system"; // To read the file as a Blob
-import { storage } from "../firebaseConfig"; // Import your Firebase config
-import { decode } from "base64-arraybuffer"
+import { useRouter } from "expo-router";
+import { getDownloadURL, ref, uploadBytes, getStorage } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/firebaseConfig";
 
 const Photos = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -14,52 +13,68 @@ const Photos = () => {
   const [isCameraActive, setIsCameraActive] = useState(false);
   const cameraRef = useRef();
   const router = useRouter();
+  const storage = getStorage();
+  const uniqueId = `${Date.now()}`;
+  const galleryRef = ref(storage, `gallery/photo_${uniqueId}.jpg`);
 
   const imageUrl =
     "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/AlexFace.png?alt=media&token=d76371d5-7676-464e-bb9d-35dc9a236db7";
 
-    const takePicture = async () => {
-      console.log("Taking picture...");
-      if (cameraRef.current) {
-        const newPhoto = await cameraRef.current.takePictureAsync();
-        console.log("Picture taken", newPhoto);
-        setPhoto(newPhoto);
-    
-        try {
-          // Read the image as Base64 string
-          const base64 = await FileSystem.readAsStringAsync(newPhoto.uri, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
-    
-          // Create a Firebase Storage reference
-          const fileName = `photos/${Date.now()}.jpg`;
-          const storageRef = ref(storage, fileName);
-    
-          // Upload the Base64 string directly to Firebase
-          await uploadString(storageRef, base64, "base64", {
-            contentType: "image/jpeg", // Specify the content type
-          });
-          console.log("Image uploaded successfully!");
-    
-          // Retrieve the download URL for the uploaded image
-          const downloadUrl = await getDownloadURL(storageRef);
-          console.log("Image available at:", downloadUrl);
-    
-          // Add the image URL to your gallery or database
-          addImageToGallery(downloadUrl);
-        } catch (error) {
-          console.error("Error uploading image:", error);
-        }
-      }
-    };
+  const uriToBlob = (uri) => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+
+      xhr.onerror = function () {
+        reject(new Error("uriToBlob failed"));
+      }; 
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+
+      xhr.send(null);
+    });
+  };
+
+  const uploadToFirebase = async (blob) => {
+    try {
+      const uniqueId = `${Date.now()}`;
+      const storageRef = ref(storage, `gallery/photo_${uniqueId}.jpg`);
+      await uploadBytes(storageRef, blob);
+  
+      const downloadUrl = await getDownloadURL(storageRef);
+  
+      await setDoc(doc(db, "gallery", uniqueId), {
+        url: downloadUrl,
+        timestamp: Date.now(),
+      });
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      throw error;
+    }
+  };
+
+  const takePicture = async () => {
+    if (cameraRef.current) {
+      const newPhoto = await cameraRef.current.takePictureAsync();
+      setPhoto(newPhoto);
+      uriToBlob(photo.uri)
+        .then((blob) => {
+          return uploadToFirebase(blob);
+        })
+        .then((snapshot) => {})
+        .catch((error) => {
+          throw error;
+        });
+    }
+  };
 
   const exitCamera = () => {
-    console.log("Exiting Camera");
     setIsCameraActive(false);
   };
 
   const handleGallery = () => {
-    console.log("Pressed");
     router.push(`/gallery`);
   };
 
@@ -69,11 +84,7 @@ const Photos = () => {
 
   if (isCameraActive) {
     return (
-
-      <CameraView
-        ref={cameraRef}
-        style={StyleSheet.absoluteFill}
-      >
+      <CameraView ref={cameraRef} style={StyleSheet.absoluteFill}>
         <View style={styles.cameraOverlay}>
           <TouchableOpacity onPress={exitCamera} style={styles.exitButton}>
             <Ionicons name="exit" size={60} color="white" />
@@ -83,7 +94,6 @@ const Photos = () => {
           </TouchableOpacity>
         </View>
       </CameraView>
-
     );
   }
 
@@ -186,4 +196,3 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
-
