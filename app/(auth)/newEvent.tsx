@@ -114,7 +114,6 @@ export default function EventCreation() {
   const submitEvent = async () => {
     const collectionRef = collection(db, "test-events");
 
-    // Event Data + upload
     const eventData = {
       eventName: eventName,
       eventDate: selectedDateTime.toISOString(),
@@ -129,7 +128,7 @@ export default function EventCreation() {
 
     if (eventName && selectedDateTime && selectedLocation) {
       const eventDocRef = await addDoc(collectionRef, eventData);
-      // Items list upload
+
       if (itemsList.length > 0) {
         const subCollectionRef = collection(
           db,
@@ -150,7 +149,7 @@ export default function EventCreation() {
 
       setEventName("");
       setItemsList([]);
-      setSelectedLocation("");
+      setSelectedLocation(null);
       setSearchQuery("");
       setSelectedEventType(null);
     }
@@ -208,7 +207,6 @@ export default function EventCreation() {
             <View>
               <Text style={styles.title}>🎟️ Create Your Next Event</Text>
 
-              {/* Event Type Checkboxes */}
               <Text style={styles.sectionTitle}>🎂 Event Type</Text>
               <View style={styles.checkboxContainer}>
                 {["BBQ", "House Party", "Camping Trip", "Graduation"].map(
@@ -221,7 +219,7 @@ export default function EventCreation() {
                           style={styles.checkbox}
                           isChecked={selectedEventType === eventType}
                           onPress={() => handleEventTypeChange(eventType)}
-                          fillColor="#4CA19E" // Green when checked
+                          fillColor="#4CA19E"
                           iconStyle={{
                             borderColor: "#4CA19E",
                             borderRadius: 5,
@@ -233,7 +231,7 @@ export default function EventCreation() {
                   )
                 )}
               </View>
-              {/* Event Name Input */}
+
               <Text style={styles.sectionTitle}>🏷️ Event Name</Text>
               <TextInput
                 style={styles.input}
@@ -241,9 +239,10 @@ export default function EventCreation() {
                 returnKeyType="next"
                 placeholder="Event Name"
                 maxLength={75}
+                value={eventName}
                 onChangeText={(input) => setEventName(input)}
               />
-              {/* Add Item Input */}
+
               <Text style={styles.sectionTitle}>📋 Items</Text>
               <TextInput
                 style={styles.input}
@@ -258,7 +257,6 @@ export default function EventCreation() {
                 onChangeText={(input) => setNewItem(input)}
               />
 
-              {/* Items List (using FlatList) */}
               {itemsList.length === 0 ? (
                 <>
                   <Text style={styles.noItemsText}>
@@ -275,7 +273,6 @@ export default function EventCreation() {
                 </View>
               )}
 
-              {/* Date and Time */}
               <Text style={styles.sectionTitle}>🗓️ Date & Time</Text>
               <Text onPress={showDatePicker} style={styles.dateTimeText}>
                 {formatDateWithOrdinal(selectedDateTime)}
@@ -288,7 +285,6 @@ export default function EventCreation() {
                 minimumDate={new Date()}
               />
 
-              {/* Location Search */}
               <Text style={styles.sectionTitle}>📍 Location</Text>
               <TextInput
                 placeholder="Search for a location"
@@ -298,14 +294,13 @@ export default function EventCreation() {
               />
               {renderSearchResults()}
 
-              {/* Submit Button */}
               <TouchableOpacity
                 onPress={submitEvent}
                 style={[
                   styles.button,
                   isButtonDisabled && styles.buttonDisabled,
                 ]}
-                disabled={isButtonDisabled} // Disable when criteria aren't met
+                disabled={isButtonDisabled}
               >
                 <Text style={styles.buttonText}>Create Event ✨</Text>
               </TouchableOpacity>

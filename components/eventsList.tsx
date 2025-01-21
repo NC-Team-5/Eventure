@@ -14,15 +14,31 @@ const EventsList = () => {
     try {
       const eventsCollection = collection(db, "test-events");
       const querySnapshot = await getDocs(eventsCollection);
-      const allEvents = querySnapshot.docs.map((doc) => ({
-        eventId: doc.id,
-        numOfGuests: doc.data().eventGuests.length,
-        date: new Date(doc.data().eventDate).toLocaleString(),
-        name: doc.data().eventName,
-        host: doc.data().eventHost.hostName,
-        type: doc.data().eventType || "unknown",
+
+
+      const allEvents = querySnapshot.docs.map((doc) => {
+        const eventData = doc.data();
+        const eventDate = new Date(eventData.eventDate);
+
+        return {
+          eventId: doc.id,
+          numOfGuests: eventData.eventGuests.length,
+          date: eventDate,
+          name: eventData.eventName,
+          host: eventData.eventHost.hostName,
+          type: eventData.eventType || "unknown",
+        };
+      });
+
+      const sortedEvents = allEvents.sort((a, b) => a.date - b.date);
+
+      const formattedEvents = sortedEvents.map((event) => ({
+        ...event,
+        date: event.date.toLocaleString(),
+
       }));
-      setEvents(allEvents);
+
+      setEvents(formattedEvents);
     } catch (err) {
       console.error("Error fetching events:", err);
       setError("Failed to fetch events");
