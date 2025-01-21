@@ -20,8 +20,8 @@ const EventCard = ({
   const router = useRouter();
 
   const handlePress = () => {
-    console.log("Pressed");
-    router.push(`/event`);
+    console.log("Event Card Pressed");
+    router.replace('event')
   };
 
   return (
