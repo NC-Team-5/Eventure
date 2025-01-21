@@ -14,8 +14,6 @@ import {
   updateProfile,
   updateEmail,
   sendPasswordResetEmail,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
 } from "firebase/auth";
 import { auth } from "../../firebaseConfig";
 import { router } from "expo-router";
@@ -24,15 +22,14 @@ import ProfilePicSelect from "@/components/profilePage/ProfilePicSelect";
 export default function ProfileScreen() {
   const user = auth.currentUser;
 
-  const [displayName, setDisplayName] = useState(user?.displayName);
-  const [newEmailAddress, setNewEmailAddress] = useState(user?.email);
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-  const [displayReAuth, setDisplayReAuth] = useState(false);
-  const [reAuthPassword, setReAuthPassword] = useState(null);
-  const [reAuthEmail, setReAuthEmail] = useState(null);
+  const [displayName, setDisplayName] = useState(user?.displayName || "");
+  const [newEmailAddress, setNewEmailAddress] = useState(user?.email || "");
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
-  const [showErrors, setShowErrors] = useState(false);
+
+  // Flags to track if fields are touched
+  const [isDisplayNameTouched, setIsDisplayNameTouched] = useState(false);
+  const [isEmailTouched, setIsEmailTouched] = useState(false);
 
   useEffect(() => {
     validateForm();
@@ -45,8 +42,8 @@ export default function ProfileScreen() {
       errors.email = "Enter a valid email address";
     }
 
-    if (!displayName) {
-      errors.name = "Enter your display name";
+    if (!displayName || displayName.trim().length < 2) {
+      errors.name = "Display name must be at least 2 characters";
     }
 
     setErrors(errors);
@@ -57,7 +54,7 @@ export default function ProfileScreen() {
     if (isFormValid) {
       updateProfile(user, { displayName })
         .then(() => {
-          Alert.alert("Success!", "Display name updated.");
+          Alert.alert(`We'll call you ${displayName}!`);
         })
         .catch((error) => {
           Alert.alert("Error", error.message);
@@ -71,7 +68,7 @@ export default function ProfileScreen() {
     if (isFormValid) {
       updateEmail(auth.currentUser, newEmailAddress)
         .then(() => {
-          Alert.alert("Success!", "Email address updated.");
+          Alert.alert(`📧 Your new email address is ${newEmailAddress}`);
         })
         .catch((error) => {
           Alert.alert("Error", error.message);
@@ -79,22 +76,10 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleReAuth = () => {
-    const credential = EmailAuthProvider.credential(user.email, reAuthPassword);
-    reauthenticateWithCredential(user, credential)
-      .then(() => {
-        handleEmailChange();
-        setDisplayReAuth(false);
-      })
-      .catch((error) => {
-        Alert.alert("Error", "Reauthentication failed. Please try again.");
-      });
-  };
-
   const handlePasswordChange = () => {
     sendPasswordResetEmail(auth, user?.email)
       .then(() => {
-        Alert.alert("Success", "Password reset email sent.");
+        Alert.alert("🔐 Password reset email sent");
       })
       .catch((error) => {
         Alert.alert("Error", error.message);
@@ -105,7 +90,6 @@ export default function ProfileScreen() {
     signOut(auth)
       .then(() => {
         router.replace("/");
-        // Alert.alert("Signed Out", "You have been signed out");
       })
       .catch((error) => {
         Alert.alert("Error", error.message);
@@ -125,14 +109,21 @@ export default function ProfileScreen() {
           <Text style={styles.inputLabel}>Display Name</Text>
           <TextInput
             style={styles.input}
-            onChangeText={setDisplayName}
+            onChangeText={(text) => {
+              setDisplayName(text);
+              setIsDisplayNameTouched(true);
+            }}
             placeholder={user?.displayName}
+            autoComplete='given-name'
           />
-          {showErrors && errors.name && <Text style={styles.error}>{errors.name}</Text>}
+          {errors.name && <Text style={styles.error}>{errors.name}</Text>}
           <TouchableOpacity
             onPress={handleDisplayNameChange}
-            style={[styles.button, !isFormValid && styles.buttonDisabled]}
-            disabled={!isFormValid}
+            style={[
+              styles.button,
+              (!isDisplayNameTouched || !isFormValid) && styles.buttonDisabled,
+            ]}
+            disabled={!isDisplayNameTouched || !isFormValid}
           >
             <Text style={styles.buttonText}>Update display name</Text>
           </TouchableOpacity>
@@ -142,50 +133,30 @@ export default function ProfileScreen() {
           <Text style={styles.inputLabel}>Email Address</Text>
           <TextInput
             style={styles.input}
-            onChangeText={setNewEmailAddress}
+            onChangeText={(text) => {
+              setNewEmailAddress(text);
+              setIsEmailTouched(true);
+            }}
             keyboardType="email-address"
+            autoComplete="email"
             placeholder={user?.email}
           />
-          {showErrors && errors.email && <Text style={styles.error}>{errors.email}</Text>}
+          {errors.email && <Text style={styles.error}>{errors.email}</Text>}
           <TouchableOpacity
-            onPress={() => setDisplayReAuth(true)}
-            style={styles.button}
+            onPress={handleEmailChange}
+            style={[
+              styles.button,
+              (!isEmailTouched || !isFormValid) && styles.buttonDisabled,
+            ]}
+            disabled={!isEmailTouched || !isFormValid}
           >
             <Text style={styles.buttonText}>Update email</Text>
           </TouchableOpacity>
-
-          {displayReAuth && (
-            <View style={styles.reAuthContainer}>
-              <Text style={styles.inputLabel}>Please re-enter your details to update email</Text>
-              <TextInput
-                style={styles.input}
-                onChangeText={setReAuthEmail}
-                placeholder="Email address"
-                keyboardType="email-address"
-              />
-              <TextInput
-                style={styles.input}
-                onChangeText={setReAuthPassword}
-                secureTextEntry={true}
-                placeholder="Password"
-              />
-              <TouchableOpacity
-                onPress={handleReAuth}
-                style={[styles.button, !isFormValid && styles.buttonDisabled]}
-                disabled={!isFormValid}
-              >
-                <Text style={styles.buttonText}>Submit login details</Text>
-              </TouchableOpacity>
-            </View>
-          )}
         </View>
 
         <View style={styles.profileContainer}>
           <Text style={styles.inputLabel}>Change your password</Text>
-          <TouchableOpacity
-            onPress={handlePasswordChange}
-            style={styles.button}
-          >
+          <TouchableOpacity onPress={handlePasswordChange} style={styles.button}>
             <Text style={styles.buttonText}>Send password reset email</Text>
           </TouchableOpacity>
         </View>
@@ -234,14 +205,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   profileContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   logOutButton: {
     backgroundColor: "#b2a591",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: -15,
+    marginTop: -5,
   },
   button: {
     backgroundColor: "#4CA19E",
@@ -249,7 +220,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     marginTop: 5,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   buttonDisabled: {
     backgroundColor: "#A0D3D0",
@@ -263,11 +234,6 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 14,
     marginTop: 5,
-  },
-  reAuthContainer: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: "#f4f4f4",
-    borderRadius: 8,
+    marginBottom: 5,
   },
 });

@@ -101,7 +101,6 @@ const ProfilePicSelect = () => {
   return (
     <>
       <View style={styles.profileContainer}>
-        {/* <ThemedText style={styles.profileText}>Profile Picture</ThemedText> */}
         <View style={styles.imageContainer}>
           <ImageViewer
             imgSource={profilePic}
@@ -109,7 +108,7 @@ const ProfilePicSelect = () => {
           />
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={handleOnPress}>
-              <Text style={styles.buttonText}>Choose from photo library 🖼️</Text>
+              <Text style={styles.buttonText}>Choose from your photo library</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -122,13 +121,6 @@ const styles = StyleSheet.create({
   profileContainer: {
     marginBottom: 10,
     alignItems: "center",
-  },
-  profileText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 12,
-    textAlign: "left",
-    width: "100%",
   },
   imageContainer: {
     alignItems: "center",
