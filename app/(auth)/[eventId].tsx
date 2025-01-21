@@ -49,7 +49,7 @@ export default function Event() {
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.title}>{event.eventName}</Text>
-          <ItemList />
+          <ItemList eventId={eventId} />
           <GuestList />
           <Photos />
           {/* <Map /> */}

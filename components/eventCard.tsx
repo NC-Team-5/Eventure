@@ -21,7 +21,6 @@ const EventCard = ({
   const router = useRouter();
 
   const handlePress = () => {
-    console.log("Event Card Pressed");
     router.replace(`/(auth)/${event.eventId}`)
   };
 
