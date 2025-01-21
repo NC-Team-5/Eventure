@@ -13,23 +13,23 @@ import { collection, query, where, getDocs, addDoc, updateDoc, doc } from "fireb
 const ItemList = ({ eventId }) => {
   const [isAddingItem, setAddingItem] = useState(false);
   const [newItem, setNewItem] = useState("");
-  const [items, setItems] = useState([]); // To store the list of items
-  const [loading, setLoading] = useState(true); // To manage loading state
-  const [error, setError] = useState(null); // To handle any errors
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Fetch items from Firestore
   useEffect(() => {
     const fetchItems = async () => {
-      setLoading(true); // Ensure loading is set to true before fetching
+      setLoading(true);
       try {
         const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
-        const q = query(eventItemsCollection); // No need to filter, fetch all items for this event
+        const q = query(eventItemsCollection);
         const querySnapshot = await getDocs(q);
 
         const fetchedItems = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           name: doc.data().name,
-          isChecked: doc.data().isChecked, // Capture the `isChecked` field
+          isChecked: doc.data().isChecked,
         }));
 
         setItems(fetchedItems);
@@ -37,7 +37,7 @@ const ItemList = ({ eventId }) => {
         console.error("Error fetching items:", err);
         setError("Failed to fetch items");
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false);
       }
     };
 
