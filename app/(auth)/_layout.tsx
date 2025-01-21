@@ -53,6 +53,36 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="event"
+        options={{
+          href: null,
+          title: "Event",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="calendar.circle.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="[eventId]"
+        options={{
+          href: null,
+          title: "Event",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="doc.plaintext.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="gallery"
+        options={{
+          href: null,
+          title: "Gallery",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="photo.artframe" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

@@ -2,7 +2,7 @@ import { ScrollView, Text, View, StyleSheet, SafeAreaView } from "react-native";
 import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/firebaseConfig"; // Make sure your Firebase config is correctly imported
+import { db } from "@/firebaseConfig";
 import ItemList from "@/components/ItemList";
 import GuestList from "@/components/guestList";
 import Photos from "@/components/camera";
@@ -22,7 +22,7 @@ export default function Event() {
       }
 
       try {
-        const eventDoc = doc(db, "test-events", eventId); // Adjust the collection name as needed
+        const eventDoc = doc(db, "test-events", eventId);
         const eventSnapshot = await getDoc(eventDoc);
 
         if (eventSnapshot.exists()) {
