@@ -1,28 +1,22 @@
 import {
   StyleSheet,
-  Alert,
   Text,
   TouchableOpacity,
   View,
-  Image,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import React from "react";
 import "firebase/storage";
-import * as firebase from "firebase/app";
-import { app } from "../../firebaseConfig";
 import * as ImagePicker from "expo-image-picker";
 import ImageViewer from "@/components/profilePage/ProfilePic";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import {
-  getAuth,
   updateProfile,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
+import { db, auth } from "../../firebaseConfig";
 
 const ProfilePicSelect = () => {
-  const auth = getAuth(app);
   const user = auth.currentUser;
   const storage = getStorage();
   const userProfilePicsRef = ref(
@@ -107,7 +101,7 @@ const ProfilePicSelect = () => {
   return (
     <>
       <View style={styles.profileContainer}>
-        <ThemedText style={styles.profileText}>Change your profile pic 🤳</ThemedText>
+        {/* <ThemedText style={styles.profileText}>Profile Picture</ThemedText> */}
         <View style={styles.imageContainer}>
           <ImageViewer
             imgSource={profilePic}

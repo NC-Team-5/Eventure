@@ -188,8 +188,9 @@ export default function EventCreation() {
             keyboardShouldPersistTaps="handled"
           >
             <View>
+              <Text style={styles.title}>🎟️ Create Your Next Event</Text>
               {/* Event Name Input */}
-              <Text style={styles.sectionTitle}>🎟️ Create Event</Text>
+              <Text style={styles.sectionTitle}>🏷️ Give it a name</Text>
               <TextInput
                 style={styles.input}
                 autoCapitalize="words"
@@ -200,7 +201,7 @@ export default function EventCreation() {
               />
 
               {/* Add Item Input */}
-              <Text style={styles.sectionTitle}>📋 Add Items</Text>
+              <Text style={styles.sectionTitle}>📋 What Items</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Add Items"

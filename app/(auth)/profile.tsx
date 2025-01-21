@@ -1,7 +1,6 @@
 import {
   StyleSheet,
   Alert,
-  Button,
   Text,
   TextInput,
   View,
@@ -11,7 +10,6 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import {
-  getAuth,
   signOut,
   updateProfile,
   updateEmail,
@@ -107,7 +105,7 @@ export default function ProfileScreen() {
     signOut(auth)
       .then(() => {
         router.replace("/");
-        Alert.alert("Signed Out", "You have been signed out");
+        // Alert.alert("Signed Out", "You have been signed out");
       })
       .catch((error) => {
         Alert.alert("Error", error.message);
@@ -124,7 +122,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.profileContainer}>
-          <Text style={styles.inputLabel}>Change your Display Name</Text>
+          <Text style={styles.inputLabel}>Display Name</Text>
           <TextInput
             style={styles.input}
             onChangeText={setDisplayName}
@@ -141,7 +139,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.profileContainer}>
-          <Text style={styles.inputLabel}>Change your email address</Text>
+          <Text style={styles.inputLabel}>Email Address</Text>
           <TextInput
             style={styles.input}
             onChangeText={setNewEmailAddress}
@@ -162,7 +160,6 @@ export default function ProfileScreen() {
               <TextInput
                 style={styles.input}
                 onChangeText={setReAuthEmail}
-                value={reAuthEmail}
                 placeholder="Email address"
                 keyboardType="email-address"
               />
@@ -194,7 +191,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.profileContainer}>
-          <TouchableOpacity onPress={handleSignOut} style={styles.button}>
+          <TouchableOpacity onPress={handleSignOut} style={styles.logOutButton}>
             <Text style={styles.buttonText}>Log out</Text>
           </TouchableOpacity>
         </View>
@@ -227,24 +224,32 @@ const styles = StyleSheet.create({
     borderColor: "#4CA19E",
     borderRadius: 8,
     paddingHorizontal: 10,
-    marginBottom: 15,
+    marginBottom: 5,
     fontSize: 16,
     color: "#333",
   },
   inputLabel: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 5,
+    marginBottom: 10,
   },
   profileContainer: {
     marginBottom: 20,
+  },
+  logOutButton: {
+    backgroundColor: "#b2a591",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: -15,
   },
   button: {
     backgroundColor: "#4CA19E",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 5,
+    marginBottom: 15,
   },
   buttonDisabled: {
     backgroundColor: "#A0D3D0",
