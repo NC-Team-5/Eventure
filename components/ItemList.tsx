@@ -8,7 +8,7 @@ import {
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useState, useEffect } from "react";
 import { db, auth } from "@/firebaseConfig";
-import { collection, query, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore";
+import { collection, query, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore"; // Firestore real-time listener
 
 const ItemList = ({ eventId }) => {
   const [isAddingItem, setAddingItem] = useState(false);
@@ -17,10 +17,12 @@ const ItemList = ({ eventId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch items from Firestore with real-time listener
   useEffect(() => {
     const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
     const q = query(eventItemsCollection);
 
+    // Real-time listener
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const fetchedItems = querySnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -35,6 +37,7 @@ const ItemList = ({ eventId }) => {
       setLoading(false);
     });
 
+    // Cleanup on component unmount
     return () => unsubscribe();
   }, [eventId]);
 
