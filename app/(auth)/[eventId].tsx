@@ -50,6 +50,7 @@ export default function Event() {
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.title}>{event.eventName}</Text>
+          <Text style={styles.subTitle}>👤 {event.eventHost.hostName} is your host</Text>
           <ItemList eventId={eventId} />
           <GuestList />
           <Photos />
@@ -71,8 +72,16 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
-    fontSize: 30,
+    color: "#4CA19E",
+    fontSize: 28,
     textAlign: "center",
     padding: 20,
+    paddingBottom: 10,
+  },
+  subTitle: {
+    fontWeight: "bold",
+    color: "#a9a591",
+    fontSize: 24,
+    textAlign: "center",
   },
 });
