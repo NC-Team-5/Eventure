@@ -136,6 +136,7 @@ const GuestList = ({ eventId }) => {
   return (
     <>
       <View style={card.box}>
+        <Text style={card.inputLabel}> 🫂 Invite Guests</Text>
         <View>
           {guestList.map((guest, index) => {
             return (
@@ -278,6 +279,11 @@ const card = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 1,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 20,
   },
 });
 

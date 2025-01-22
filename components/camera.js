@@ -30,12 +30,12 @@ const Photos = ({ eventId }) => {
       console.error("Invalid or missing eventId:", eventId);
       return;
     }
-  
+
     const q = query(
       collection(db, "test-events", eventId, "gallery"),
       orderBy("timestamp", "desc")
     );
-  
+
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
@@ -46,10 +46,9 @@ const Photos = ({ eventId }) => {
         console.error("Error fetching gallery data:", error);
       }
     );
-  
+
     return () => unsubscribe();
   }, [eventId]);
-  
 
   const uriToBlob = (uri) => {
     return new Promise((resolve, reject) => {
@@ -93,7 +92,6 @@ const Photos = ({ eventId }) => {
       const newPhoto = await cameraRef.current.takePictureAsync();
       setPhoto(newPhoto);
       uriToBlob(newPhoto.uri)
-
         .then((blob) => {
           return uploadToFirebase(blob);
         })
@@ -105,7 +103,6 @@ const Photos = ({ eventId }) => {
         });
     }
   };
-  
 
   const exitCamera = () => {
     setIsCameraActive(false);
@@ -136,6 +133,9 @@ const Photos = ({ eventId }) => {
 
   return (
     <View style={styles.container}>
+      <View style={{ alignSelf: "baseline", marginLeft: 27 }}>
+        <Text style={styles.inputLabel}> 📷 Take photos </Text>
+      </View>
       <View style={styles.box}>
         <View style={styles.box2}>
           {photoUrls.slice(0, 6).map((url, index) => (
@@ -229,6 +229,11 @@ const styles = StyleSheet.create({
   },
   captureButton: {
     alignSelf: "center",
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
     marginBottom: 20,
   },
 });

@@ -151,12 +151,12 @@ export default function EventCreation() {
       if (gallery.length === 0) {
         const subCollectionGalleryRef = collection(
           db,
-          'test-events',
+          "test-events",
           eventDocRef.id,
-          'gallery'
+          "gallery"
         );
-      
-        await setDoc(doc(subCollectionGalleryRef, 'placeholder'), {
+
+        await setDoc(doc(subCollectionGalleryRef, "placeholder"), {
           isPlaceholder: true,
           createdAt: new Date(),
         });
@@ -164,7 +164,7 @@ export default function EventCreation() {
 
       setEventName("");
       setItemsList([]);
-      setGallery([])
+      setGallery([]);
       setSelectedLocation(null);
       setSearchQuery("");
       setSelectedEventType(null);
@@ -241,7 +241,6 @@ export default function EventCreation() {
                           }}
                           innerIconStyle={{
                             borderRadius: 5,
-                            backgroundColor: "#F8FFFC",
                           }}
                         />
                       </View>
