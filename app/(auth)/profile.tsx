@@ -114,7 +114,7 @@ export default function ProfileScreen() {
               setIsDisplayNameTouched(true);
             }}
             placeholder={user?.displayName}
-            autoComplete='given-name'
+            autoComplete="given-name"
           />
           {errors.name && <Text style={styles.error}>{errors.name}</Text>}
           <TouchableOpacity
@@ -156,7 +156,10 @@ export default function ProfileScreen() {
 
         <View style={styles.profileContainer}>
           <Text style={styles.inputLabel}>Change your password</Text>
-          <TouchableOpacity onPress={handlePasswordChange} style={styles.button}>
+          <TouchableOpacity
+            onPress={handlePasswordChange}
+            style={styles.button}
+          >
             <Text style={styles.buttonText}>Send password reset email</Text>
           </TouchableOpacity>
         </View>
@@ -198,6 +201,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     fontSize: 16,
     color: "#333",
+    backgroundColor: "#F8FFFC",
   },
   inputLabel: {
     fontSize: 16,

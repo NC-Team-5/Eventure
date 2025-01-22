@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f8f8",
+    paddingBottom: 50,
   },
   scrollContent: {
     flexGrow: 1,
@@ -75,6 +76,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
+
     color: "#4CA19E",
     fontSize: 28,
     textAlign: "center",
@@ -86,5 +88,6 @@ const styles = StyleSheet.create({
     color: "#a9a591",
     fontSize: 24,
     textAlign: "center",
+
   },
 });

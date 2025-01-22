@@ -8,7 +8,9 @@ import {
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useState, useEffect } from "react";
 import { db, auth } from "@/firebaseConfig";
+
 import { collection, query, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore";
+
 
 const ItemList = ({ eventId }) => {
   const [newItem, setNewItem] = useState("");
@@ -17,8 +19,14 @@ const ItemList = ({ eventId }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
+    const eventItemsCollection = collection(
+      db,
+      "test-events",
+      eventId,
+      "eventItems"
+    );
     const q = query(eventItemsCollection);
+
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const fetchedItems = querySnapshot.docs.map((doc) => ({
@@ -35,18 +43,24 @@ const ItemList = ({ eventId }) => {
       setLoading(false);
     });
 
+
     return () => unsubscribe();
   }, [eventId]);
 
   const handleAddItem = async () => {
     if (newItem.trim() !== "") {
       try {
-        const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
+        const eventItemsCollection = collection(
+          db,
+          "test-events",
+          eventId,
+          "eventItems"
+        );
         await addDoc(eventItemsCollection, {
           name: newItem,
           isChecked: false,
           checkedBy: "",
-          addedBy: auth.currentUser?.displayName
+          addedBy: auth.currentUser?.displayName,
         });
 
         setNewItem("");
@@ -74,10 +88,12 @@ const ItemList = ({ eventId }) => {
   if (error) return <Text>{error}</Text>;
 
   return (
+
     <View style={styles.container}>
       <Text style={styles.inputLabel}>📋 Stuff to bring</Text>
       <View>
         {items.map((item) => (
+
           <View
             style={styles.itemContainer}
             key={item.id}>
@@ -88,6 +104,7 @@ const ItemList = ({ eventId }) => {
               isChecked={item.isChecked}
               onPress={(isChecked) => handleCheckboxChange(item.id, isChecked)}
             />
+
             {(item.checkedBy && item.isChecked) ? (
               <Text style={styles.checkedItem}>
                 {item.name} - {item.checkedBy}
@@ -117,10 +134,12 @@ const ItemList = ({ eventId }) => {
           style={styles.button}>
           <Text style={styles.buttonText}>Add it to the list</Text>
         </TouchableOpacity>
+
       </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -176,4 +195,5 @@ const styles = StyleSheet.create({
 });
 
 export default ItemList;
+
 

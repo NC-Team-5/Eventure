@@ -103,21 +103,27 @@ const GuestList = () => {
             return (
               <View key={index} style={{ flexDirection: "row" }}>
                 <Text style={textBox.box}>{guest}</Text>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: "#000",
-                    borderRadius: 8,
-                    padding: 12,
-                    margin: 5,
-                  }}
-                  onPress={() => {
-                    sendEmail(guest);
-                  }}
-                >
-                  <Text style={{ fontSize: 13, color: "#fff" }}>
-                    Email invite
-                  </Text>
-                </TouchableOpacity>
+                <View>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: "#4CA19E",
+                      borderRadius: 8,
+                      padding: 12,
+                      margin: 5,
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.25,
+                      shadowRadius: 1,
+                    }}
+                    onPress={() => {
+                      sendEmail(guest);
+                    }}
+                  >
+                    <Text style={{ fontSize: 13, color: "#fff" }}>
+                      Email invite
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             );
           })}
@@ -132,17 +138,23 @@ const GuestList = () => {
             }}
           >
             <TextInput
-              style={card.textField}
+              style={card.textField2}
               placeholder="Enter Guest Email"
               value={newGuest}
               onChangeText={setNewGuest}
             />
             <TouchableOpacity
               style={{
-                backgroundColor: "#000",
+                backgroundColor: "#4CA19E",
                 borderRadius: 8,
                 padding: 12,
-                margin: 5,
+                marginTop: 10,
+                marginLeft: 10,
+                marginBottom: -3,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 1,
               }}
               onPress={handleAddGuest}
             >
@@ -152,15 +164,15 @@ const GuestList = () => {
         ) : (
           <TouchableOpacity
             onPress={handlePress}
-            style={{ marginTop: 10, width: "98%" }}
+            style={{ marginTop: 10, width: "100%" }}
           >
             <Text style={card.box2}>Add Guest</Text>
           </TouchableOpacity>
         )}
-        <Text style={textBox.box}>Share the invite:</Text>
+        {/* <Text style={textBox.box}>Share the invite:</Text> */}
         <TouchableOpacity
           onPress={shareToWhatsApp}
-          style={{ marginTop: 10, width: "98%" }}
+          style={{ marginTop: 10, width: "97%" }}
         >
           <Text style={card.textField}>Share to Whatsapp</Text>
         </TouchableOpacity>
@@ -174,67 +186,76 @@ export default GuestList;
 const card = StyleSheet.create({
   box: {
     alignContent: "center",
-    borderColor: "#ccc",
+    borderColor: "#F8F8F8",
     borderWidth: 1,
-    backgroundColor: "#4CA19E",
     marginBottom: 20,
     padding: 5,
-    marginHorizontal: 35,
+    marginHorizontal: 20,
     borderRadius: 10,
-
-    // iOS Drop Shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-
     flexDirection: "column",
     justifyContent: "flex-start",
   },
   box2: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FFFC",
     borderRadius: 8,
     padding: 12,
-    margin: 5,
+    marginTop: 10,
+    marginLeft: 5,
+    marginBottom: -3,
     fontSize: 13,
-    width: "98.5%",
-
+    width: "67%",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowRadius: 1,
   },
   textField: {
     justifyContent: "center",
     alignItems: "center",
     textAlign: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FFFC",
     borderRadius: 8,
     padding: 12,
     margin: 5,
     fontSize: 13,
-    width: "77.5%",
-
+    width: "100%",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowRadius: 1,
+  },
+  textField2: {
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
+    backgroundColor: "#F8FFFC",
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 10,
+    marginLeft: 5,
+    marginBottom: -3,
+    fontSize: 13,
+    width: "79.9%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 1,
   },
 });
 
 const textBox = StyleSheet.create({
   box: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FFFC",
     borderRadius: 8,
     padding: 12,
     margin: 5,
     fontSize: 13,
-    width: "95%",
+    width: "66.9%",
     height: 40,
 
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowRadius: 1,
   },
 });

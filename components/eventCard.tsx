@@ -41,11 +41,12 @@ const EventCard = ({
   const router = useRouter();
 
   const handlePress = () => {
-    router.replace(`/(auth)/${event.eventId}`)
+    router.replace(`/(auth)/${event.eventId}`);
   };
 
   return (
     <TouchableOpacity onPress={handlePress}>
+      <Text style={textBox.title}>{event.name}</Text>
       <View style={card.box}>
         <Image
           source={{ uri: imageUrl }}
@@ -53,17 +54,16 @@ const EventCard = ({
         />
         <View>
           <View style={card.box2}>
-            <Text style={textBox.box}>{event.name}</Text>
             <Text style={textBox.box}>Host: {event.host}</Text>
-            <Text style={textBox.box}>
+            <Text style={textBox.box3}>
               <Ionicons
                 name="person"
                 size={14}
                 color="black"
-                style={{ position: "relative", top: 1.75 }}
+                style={{ position: "absolute" }}
               />{" "}
-              {event.numOfGuests}
             </Text>
+            <Text style={textBox.box2}>{event.numOfGuests}</Text>
             <Text style={textBox.box}>{event.date}</Text>
           </View>
         </View>
@@ -75,25 +75,24 @@ const EventCard = ({
 const card = StyleSheet.create({
   box: {
     alignItems: "center",
-    borderColor: "#ccc",
+    borderColor: "#4CA19E",
     borderWidth: 1,
-    backgroundColor: "#4CA19E",
-    marginBottom: 20,
+    marginBottom: 15,
     padding: 5,
     marginHorizontal: 35,
     borderRadius: 10,
+    backgroundColor: "#F8FFFC",
 
     // iOS Drop Shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.1,
     shadowRadius: 10,
 
     flexDirection: "row",
     justifyContent: "flex-start",
   },
   box2: {
-    padding: 0,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
@@ -103,11 +102,41 @@ const card = StyleSheet.create({
 
 const textBox = StyleSheet.create({
   box: {
-    backgroundColor: "#FFFFFF",
     borderRadius: 8,
     padding: 6,
     margin: 3,
     fontSize: 13,
+    color: "000",
+  },
+  title: {
+    borderRadius: 8,
+    marginLeft: 3,
+    fontSize: 16,
+    color: "#4CA19E",
+    fontWeight: "bold",
+    paddingLeft: 35,
+  },
+  box2: {
+    borderRadius: 8,
+    paddingBottom: 6,
+    paddingTop: 6,
+    marginTop: 3,
+    marginBottom: 3,
+    fontSize: 13,
+    color: "000",
+    paddingRight: 70,
+    paddingLeft: -30,
+  },
+  box3: {
+    borderRadius: 8,
+    paddingLeft: 6,
+    paddingTop: 6,
+    paddingBottom: 6,
+    marginTop: 3,
+    marginBottom: 3,
+    fontSize: 13,
+    color: "#4CA19E",
+    paddingRight: -40,
   },
 });
 
