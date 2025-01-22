@@ -54,6 +54,7 @@ export default function Event() {
           <Text style={styles.subTitle}>👤 {event.eventHost.hostName} is your host</Text>
           <DividerLine />
           <ItemList eventId={eventId} />
+          <GuestList eventId={eventId} />
           <DividerLine />
           <GuestList />
           <Photos eventId={eventId}/>
