@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#F8F8F8",
     flex: 1,
-    marginTop: 50,
+    marginTop: 20,
   },
   logo: {
     width: 250,
@@ -116,8 +116,8 @@ const styles = StyleSheet.create({
     marginBottom: -50,
   },
   subtitle: {
-    fontSize: 20,
-    fontWeight: "400",
+    fontSize: 22,
+    fontWeight: "bold",
     color: "#4CA19E",
     marginBottom: -10,
     textAlign: "center",
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 10,
   },
   buttonText: {
     color: "#fff",
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   signupLinkText: {
     fontSize: 16,
     color: "#4CA19E",
-    marginTop: 20,
+    marginTop: 0,
     textAlign: "left",
   },
 });

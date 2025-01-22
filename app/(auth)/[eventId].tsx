@@ -7,6 +7,7 @@ import ItemList from "@/components/ItemList";
 import GuestList from "@/components/guestList";
 import Photos from "@/components/camera";
 import DividerLine from "@/components/DividerLine";
+import Map from "@/components/map";
 
 export default function Event() {
   const { eventId } = useLocalSearchParams();
@@ -54,16 +55,16 @@ export default function Event() {
           <Text style={styles.subTitle}>
             👤 {event.eventHost.hostName} is your host
           </Text>
+          <Map eventId={eventId} />
           <DividerLine />
           <ItemList eventId={eventId} />
           <DividerLine />
           <GuestList eventId={eventId} />
           <DividerLine />
           <Photos eventId={eventId} />
-          {/* <Map /> */}
         </ScrollView>
-      </View>
-    </SafeAreaView>
+      </View >
+    </SafeAreaView >
   );
 }
 
@@ -79,7 +80,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
-
     color: "#4CA19E",
     fontSize: 28,
     textAlign: "center",

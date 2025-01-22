@@ -68,7 +68,7 @@ export default function SignUpForm() {
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
         <Text style={styles.title}>Create your account</Text>
-
+        <Image source={logo} style={styles.logo} />
         <TextInput
           keyboardType="email-address"
           style={styles.input}
