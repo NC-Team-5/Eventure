@@ -1,8 +1,26 @@
-import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert, SafeAreaView } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  Alert,
+  SafeAreaView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import React from "react";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { app } from "../firebaseConfig";
 import { useRouter, Link } from "expo-router";
+import { Image } from "react-native";
+import logo from "../assets/images/Designer.png";
 
 export default function SignInPage() {
   const [email, setEmail] = React.useState("");
@@ -37,63 +55,78 @@ export default function SignInPage() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Eventure</Text>
-        <Text style={styles.subtitle}>Plan your next event</Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.container}>
+          <Image source={logo} style={styles.logo} />
+          <Text style={styles.subtitle}>Plan your next event</Text>
+          <View style={styles.container2}>
+            <TextInput
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={styles.input}
+              onChangeText={setEmail}
+              placeholder="Email address"
+              value={email}
+            />
 
-        <TextInput
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          style={styles.input}
-          onChangeText={setEmail}
-          placeholder="Email address"
-          value={email}
-        />
+            <TextInput
+              style={styles.input}
+              onChangeText={setPassword}
+              secureTextEntry
+              placeholder="Password"
+              value={password}
+            />
 
-        <TextInput
-          style={styles.input}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholder="Password"
-          value={password}
-        />
-
-        <TouchableOpacity onPress={handleSignIn} style={styles.button}>
-          <Text style={styles.buttonText}>Log in</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.navigate("/signup")} style={styles.signupLink}>
-          <Text style={styles.signupLinkText}>Don't have an account? Sign Up</Text>
-        </TouchableOpacity>
-      </View>
+            <TouchableOpacity onPress={handleSignIn} style={styles.button}>
+              <Text style={styles.buttonText}>Log in</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.navigate("/signup")}
+              style={styles.signupLink}
+            >
+              <Text style={styles.signupLinkText}>
+                Don't have an account? Sign Up
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 30,
-    backgroundColor: "#F9F9F9",
+    padding: 20,
+    backgroundColor: "#F8F8F8",
     flex: 1,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#4CA19E",
-    marginBottom: 20,
-    textAlign: "center",
+  container2: {
+    padding: 10,
+    backgroundColor: "#F8F8F8",
+    flex: 1,
+    marginTop: 50,
+  },
+  logo: {
+    width: 250,
+    height: 250,
+    alignSelf: "center",
+    marginTop: -10,
+    marginBottom: -50,
   },
   subtitle: {
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: "400",
     color: "#4CA19E",
-    marginBottom: 20,
+    marginBottom: -10,
     textAlign: "center",
   },
   input: {
     height: 50,
     borderWidth: 1,
     borderColor: "#4CA19E",
+    backgroundColor: "#F8FFFC",
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 15,

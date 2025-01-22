@@ -73,13 +73,13 @@ const Photos = () => {
     }
   };
 
-  const delay = ms => new Promise(res => setTimeout(res, ms));
+  const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
   const takePicture = async () => {
     if (cameraRef.current) {
       const newPhoto = await cameraRef.current.takePictureAsync();
       setPhoto(newPhoto);
-      await delay(100)
+      await delay(100);
       uriToBlob(photo.uri)
         .then((blob) => {
           return uploadToFirebase(blob);
@@ -161,15 +161,14 @@ const styles = StyleSheet.create({
   },
   box: {
     alignItems: "center",
-    backgroundColor: "#4CA19E",
     marginBottom: 20,
     padding: 15,
-    marginHorizontal: 35,
+    marginHorizontal: 0,
     borderRadius: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowRadius: 1,
     flexDirection: "column",
     justifyContent: "space-between",
   },
@@ -179,10 +178,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 8,
     marginHorizontal: 10,
-    width: "100%",
+    width: "91.3%",
     flexDirection: "row",
     flexWrap: "wrap",
-    backgroundColor: '#fff',
+    backgroundColor: "#F8FFFC",
   },
   image: {
     shadowColor: "#000",
@@ -196,12 +195,12 @@ const styles = StyleSheet.create({
   },
   iconRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 5,
   },
   iconButton: {
-    padding: 10,
+    padding: 15,
   },
   cameraOverlay: {
     flex: 1,

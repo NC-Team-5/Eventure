@@ -201,7 +201,7 @@ export default function EventCreation() {
           <KeyboardAwareScrollView
             style={styles.container}
             resetScrollToCoords={{ x: 0, y: 0 }}
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: -20 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}
             keyboardShouldPersistTaps="handled"
           >
             <View>
@@ -224,7 +224,10 @@ export default function EventCreation() {
                             borderColor: "#4CA19E",
                             borderRadius: 5,
                           }}
-                          innerIconStyle={{ borderRadius: 5 }}
+                          innerIconStyle={{
+                            borderRadius: 5,
+                            backgroundColor: "#F8FFFC",
+                          }}
                         />
                       </View>
                     </View>
@@ -339,6 +342,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
     color: "#333",
+    backgroundColor: "#F8FFFC",
   },
   checkboxContainer: {
     flexDirection: "row",
@@ -384,6 +388,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 16,
     color: "#333",
+    backgroundColor: "#F8FFFC",
   },
   searchResultsContainer: {
     maxHeight: 200,

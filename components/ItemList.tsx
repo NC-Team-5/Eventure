@@ -8,7 +8,14 @@ import {
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useState, useEffect } from "react";
 import { db, auth } from "@/firebaseConfig";
-import { collection, query, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore"; // Firestore real-time listener
+import {
+  collection,
+  query,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  doc,
+} from "firebase/firestore"; // Firestore real-time listener
 
 const ItemList = ({ eventId }) => {
   const [isAddingItem, setAddingItem] = useState(false);
@@ -19,23 +26,32 @@ const ItemList = ({ eventId }) => {
 
   // Fetch items from Firestore with real-time listener
   useEffect(() => {
-    const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
+    const eventItemsCollection = collection(
+      db,
+      "test-events",
+      eventId,
+      "eventItems"
+    );
     const q = query(eventItemsCollection);
 
     // Real-time listener
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const fetchedItems = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        name: doc.data().name,
-        isChecked: doc.data().isChecked,
-      }));
-      setItems(fetchedItems);
-      setLoading(false);
-    }, (err) => {
-      console.error("Error fetching items:", err);
-      setError("Failed to fetch items");
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        const fetchedItems = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+          isChecked: doc.data().isChecked,
+        }));
+        setItems(fetchedItems);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching items:", err);
+        setError("Failed to fetch items");
+        setLoading(false);
+      }
+    );
 
     // Cleanup on component unmount
     return () => unsubscribe();
@@ -49,12 +65,17 @@ const ItemList = ({ eventId }) => {
   const handleAddItem = async () => {
     if (newItem.trim() !== "") {
       try {
-        const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
+        const eventItemsCollection = collection(
+          db,
+          "test-events",
+          eventId,
+          "eventItems"
+        );
         await addDoc(eventItemsCollection, {
           name: newItem,
           isChecked: false,
           checkedBy: "",
-          addedBy: auth.currentUser?.displayName
+          addedBy: auth.currentUser?.displayName,
         });
 
         setNewItem("");
@@ -92,7 +113,12 @@ const ItemList = ({ eventId }) => {
                 size={35}
                 style={{ marginLeft: 10 }}
                 isChecked={item.isChecked}
-                onPress={(isChecked) => handleCheckboxChange(item.id, isChecked)}
+                onPress={(isChecked) =>
+                  handleCheckboxChange(item.id, isChecked)
+                }
+                fillColor="#4CA19E"
+                innerIconStyle={{ borderRadius: 5, backgroundColor: "#F8FFFC" }}
+                iconStyle={{ borderRadius: 5, borderColor: "#4CA19E" }}
               />
             </View>
           ))}
@@ -114,10 +140,14 @@ const ItemList = ({ eventId }) => {
             />
             <TouchableOpacity
               style={{
-                backgroundColor: "#000",
+                backgroundColor: "#4CA19E",
                 borderRadius: 8,
                 padding: 12,
                 margin: 5,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 1,
               }}
               onPress={handleAddItem}
             >
@@ -127,7 +157,14 @@ const ItemList = ({ eventId }) => {
         ) : (
           <TouchableOpacity
             onPress={handlePress}
-            style={{ marginTop: 10, width: "77.5%" }}
+            style={{
+              marginTop: 10,
+              width: "82.3%",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 1,
+            }}
           >
             <Text style={card.box2}>Add Item</Text>
           </TouchableOpacity>
@@ -142,63 +179,55 @@ export default ItemList;
 const card = StyleSheet.create({
   box: {
     alignContent: "center",
-    borderColor: "#ccc",
+    borderColor: "#F8F8F8",
     borderWidth: 1,
-    backgroundColor: "#4CA19E",
     marginBottom: 20,
     padding: 5,
-    marginHorizontal: 35,
+    marginHorizontal: 20,
     borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
     flexDirection: "column",
     justifyContent: "flex-start",
   },
   box2: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FFFC",
+    borderColor: "#4CA19E",
     borderRadius: 8,
     padding: 12,
     margin: 5,
     fontSize: 13,
     width: "100%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
   },
   textField: {
     justifyContent: "center",
     alignItems: "center",
     textAlign: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FFFC",
+    borderColor: "#4CA19E",
     borderRadius: 8,
     padding: 12,
     margin: 5,
     fontSize: 13,
-    width: "77.5%",
+    width: "79.9%",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowRadius: 1,
   },
 });
 
 const textBox = StyleSheet.create({
   box: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FFFC",
+    borderColor: "#4CA19E",
     borderRadius: 8,
     padding: 12,
     margin: 5,
     fontSize: 13,
-    width: "78%",
+    width: "82.3%",
     height: 40,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowRadius: 1,
   },
 });
-
-
