@@ -8,7 +8,7 @@ import {
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useState, useEffect } from "react";
 import { db, auth } from "@/firebaseConfig";
-import { collection, query, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore"; // Firestore real-time listener
+import { collection, query, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore";
 
 const ItemList = ({ eventId }) => {
   const [isAddingItem, setAddingItem] = useState(false);
@@ -17,17 +17,16 @@ const ItemList = ({ eventId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch items from Firestore with real-time listener
   useEffect(() => {
     const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
     const q = query(eventItemsCollection);
 
-    // Real-time listener
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const fetchedItems = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
         isChecked: doc.data().isChecked,
+        checkedBy: doc.data().checkedBy
       }));
       setItems(fetchedItems);
       setLoading(false);
@@ -37,7 +36,6 @@ const ItemList = ({ eventId }) => {
       setLoading(false);
     });
 
-    // Cleanup on component unmount
     return () => unsubscribe();
   }, [eventId]);
 
@@ -71,6 +69,7 @@ const ItemList = ({ eventId }) => {
       const itemRef = doc(db, "test-events", eventId, "eventItems", itemId);
       await updateDoc(itemRef, {
         isChecked: isChecked,
+        checkedBy: isChecked ? auth.currentUser?.displayName : ""
       });
     } catch (err) {
       console.error("Error updating checkbox:", err);
@@ -86,14 +85,21 @@ const ItemList = ({ eventId }) => {
       <View style={card.box}>
         <View>
           {items.map((item) => (
-            <View style={{ flexDirection: "row" }} key={item.id}>
-              <Text style={textBox.box}>{item.name}</Text>
+            <View
+              style={{ flexDirection: "row" }}
+              key={item.id}>
               <BouncyCheckbox
-                size={35}
+                size={25}
                 style={{ marginLeft: 10 }}
                 isChecked={item.isChecked}
                 onPress={(isChecked) => handleCheckboxChange(item.id, isChecked)}
               />
+
+              <Text style={{ marginLeft: 10, fontStyle: "italic", fontSize: 12, color: "white" }}>
+                Checked by: {item.checkedBy}
+              </Text>
+
+              <Text style={textBox.box}>{item.name}</Text>
             </View>
           ))}
         </View>

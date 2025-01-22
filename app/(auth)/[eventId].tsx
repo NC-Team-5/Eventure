@@ -1,6 +1,6 @@
 import { ScrollView, Text, View, StyleSheet, SafeAreaView } from "react-native";
 import { useEffect, useState } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import ItemList from "@/components/ItemList";
@@ -18,6 +18,7 @@ export default function Event() {
       if (!eventId) {
         setError("No event ID provided");
         setLoading(false);
+        router.back()
         return;
       }
 
