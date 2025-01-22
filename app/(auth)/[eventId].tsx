@@ -51,7 +51,7 @@ export default function Event() {
           <Text style={styles.title}>{event.eventName}</Text>
           <ItemList eventId={eventId} />
           <GuestList />
-          <Photos />
+          <Photos eventId={eventId}/>
           {/* <Map /> */}
         </ScrollView>
       </View>
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    marginBottom: 50,
+    paddingBottom: 50,
   },
   title: {
     fontWeight: "bold",
