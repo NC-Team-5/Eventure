@@ -8,7 +8,7 @@ import {
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useState, useEffect } from "react";
 import { db, auth } from "@/firebaseConfig";
-import { collection, query, where, getDocs, addDoc, updateDoc, doc } from "firebase/firestore"; // Firebase Firestore methods
+import { collection, query, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore"; // Firestore real-time listener
 
 const ItemList = ({ eventId }) => {
   const [isAddingItem, setAddingItem] = useState(false);
@@ -17,31 +17,28 @@ const ItemList = ({ eventId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch items from Firestore
+  // Fetch items from Firestore with real-time listener
   useEffect(() => {
-    const fetchItems = async () => {
-      setLoading(true);
-      try {
-        const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
-        const q = query(eventItemsCollection);
-        const querySnapshot = await getDocs(q);
+    const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
+    const q = query(eventItemsCollection);
 
-        const fetchedItems = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name,
-          isChecked: doc.data().isChecked,
-        }));
+    // Real-time listener
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const fetchedItems = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+        isChecked: doc.data().isChecked,
+      }));
+      setItems(fetchedItems);
+      setLoading(false);
+    }, (err) => {
+      console.error("Error fetching items:", err);
+      setError("Failed to fetch items");
+      setLoading(false);
+    });
 
-        setItems(fetchedItems);
-      } catch (err) {
-        console.error("Error fetching items:", err);
-        setError("Failed to fetch items");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchItems();
+    // Cleanup on component unmount
+    return () => unsubscribe();
   }, [eventId]);
 
   const handlePress = () => {
@@ -52,7 +49,6 @@ const ItemList = ({ eventId }) => {
   const handleAddItem = async () => {
     if (newItem.trim() !== "") {
       try {
-
         const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
         await addDoc(eventItemsCollection, {
           name: newItem,
@@ -61,20 +57,8 @@ const ItemList = ({ eventId }) => {
           addedBy: auth.currentUser?.displayName
         });
 
-
         setNewItem("");
         setAddingItem(false);
-
-
-        const eventItemsCollectionRef = collection(db, "test-events", eventId, "eventItems");
-        const querySnapshot = await getDocs(eventItemsCollectionRef);
-        const updatedItems = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name,
-          isChecked: doc.data().isChecked,
-        }));
-
-        setItems(updatedItems);
       } catch (err) {
         console.error("Error adding item:", err);
         setError("Failed to add item");
@@ -88,11 +72,6 @@ const ItemList = ({ eventId }) => {
       await updateDoc(itemRef, {
         isChecked: isChecked,
       });
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item.id === itemId ? { ...item, isChecked: isChecked } : item
-        )
-      );
     } catch (err) {
       console.error("Error updating checkbox:", err);
       setError("Failed to update checkbox");
@@ -170,12 +149,10 @@ const card = StyleSheet.create({
     padding: 5,
     marginHorizontal: 35,
     borderRadius: 10,
-
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
-
     flexDirection: "column",
     justifyContent: "flex-start",
   },
@@ -186,7 +163,6 @@ const card = StyleSheet.create({
     margin: 5,
     fontSize: 13,
     width: "100%",
-
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
@@ -202,7 +178,6 @@ const card = StyleSheet.create({
     margin: 5,
     fontSize: 13,
     width: "77.5%",
-
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
@@ -219,10 +194,11 @@ const textBox = StyleSheet.create({
     fontSize: 13,
     width: "78%",
     height: 40,
-
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
   },
 });
+
+
