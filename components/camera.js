@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 
-const Photos = () => {
+const Photos = ({ eventId }) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [photoUrls, setPhotoUrls] = useState([]);
   const [photo, setPhoto] = useState();
@@ -25,18 +25,31 @@ const Photos = () => {
   const uniqueId = `${Date.now()}`;
   const galleryRef = ref(storage, `gallery/photo_${uniqueId}.jpg`);
 
-  const imageUrl =
-    "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/three-friends.png?alt=media&token=85cabf5a-9048-47eb-820f-90e138b422de";
-
   useEffect(() => {
-    const q = query(collection(db, "gallery"), orderBy("timestamp", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const urls = snapshot.docs.map((doc) => doc.data().url);
-      setPhotoUrls(urls);
-    });
-
+    if (!eventId || typeof eventId !== "string") {
+      console.error("Invalid or missing eventId:", eventId);
+      return;
+    }
+  
+    const q = query(
+      collection(db, "test-events", eventId, "gallery"),
+      orderBy("timestamp", "desc")
+    );
+  
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const urls = snapshot.docs.map((doc) => doc.data().url);
+        setPhotoUrls(urls);
+      },
+      (error) => {
+        console.error("Error fetching gallery data:", error);
+      }
+    );
+  
     return () => unsubscribe();
-  }, []);
+  }, [eventId]);
+  
 
   const uriToBlob = (uri) => {
     return new Promise((resolve, reject) => {
@@ -63,7 +76,7 @@ const Photos = () => {
 
       const downloadUrl = await getDownloadURL(storageRef);
 
-      await setDoc(doc(db, "gallery", uniqueId), {
+      await setDoc(doc(db, "test-events", eventId, "gallery", uniqueId), {
         url: downloadUrl,
         timestamp: Date.now(),
       });
@@ -79,24 +92,27 @@ const Photos = () => {
     if (cameraRef.current) {
       const newPhoto = await cameraRef.current.takePictureAsync();
       setPhoto(newPhoto);
-      await delay(100);
-      uriToBlob(photo.uri)
+      uriToBlob(newPhoto.uri)
+
         .then((blob) => {
           return uploadToFirebase(blob);
         })
-        .then((snapshot) => {})
+        .then(() => {
+          console.log("Photo uploaded successfully");
+        })
         .catch((error) => {
-          throw error;
+          console.error("Error uploading photo:", error);
         });
     }
   };
+  
 
   const exitCamera = () => {
     setIsCameraActive(false);
   };
 
   const handleGallery = () => {
-    router.push(`/gallery`);
+    router.push(`/gallery?eventId=${eventId}`);
   };
 
   if (permission === null) {
@@ -173,7 +189,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   box2: {
-    justifyContent: "space-between",
     alignItems: "center",
     borderRadius: 8,
     padding: 8,

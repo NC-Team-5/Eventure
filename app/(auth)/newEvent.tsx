@@ -17,7 +17,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import * as Location from "expo-location";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { db, auth } from "../../firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, setDoc, doc } from "firebase/firestore";
 import { ThemedText } from "@/components/ThemedText";
 
 import BouncyCheckbox from "react-native-bouncy-checkbox";
@@ -25,6 +25,7 @@ import BouncyCheckbox from "react-native-bouncy-checkbox";
 export default function EventCreation() {
   const [eventName, setEventName] = useState("");
   const [itemsList, setItemsList] = useState([]);
+  const [gallery, setGallery] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDateTime, setSelectedDateTime] = useState(new Date());
@@ -147,8 +148,23 @@ export default function EventCreation() {
         }
       }
 
+      if (gallery.length === 0) {
+        const subCollectionGalleryRef = collection(
+          db,
+          'test-events',
+          eventDocRef.id,
+          'gallery'
+        );
+      
+        await setDoc(doc(subCollectionGalleryRef, 'placeholder'), {
+          isPlaceholder: true,
+          createdAt: new Date(),
+        });
+      }
+
       setEventName("");
       setItemsList([]);
+      setGallery([])
       setSelectedLocation(null);
       setSearchQuery("");
       setSelectedEventType(null);
@@ -212,10 +228,9 @@ export default function EventCreation() {
                 {["BBQ", "House Party", "Camping Trip", "Graduation"].map(
                   (eventType) => (
                     <View key={eventType} style={styles.checkboxRow}>
-                      <Text style={styles.checkboxLabel}>{eventType}</Text>
                       <View>
                         <BouncyCheckbox
-                          size={35}
+                          size={18}
                           style={styles.checkbox}
                           isChecked={selectedEventType === eventType}
                           onPress={() => handleEventTypeChange(eventType)}
@@ -230,6 +245,7 @@ export default function EventCreation() {
                           }}
                         />
                       </View>
+                      <Text style={styles.checkboxLabel}>{eventType}</Text>
                     </View>
                   )
                 )}
