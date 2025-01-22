@@ -124,6 +124,7 @@ const ItemList = ({ eventId }) => {
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 0,
     padding: 25,
     backgroundColor: "#F9F9F9",
     flex: 1,

@@ -6,6 +6,7 @@ import { db } from "@/firebaseConfig";
 import ItemList from "@/components/ItemList";
 import GuestList from "@/components/guestList";
 import Photos from "@/components/camera";
+import DividerLine from "@/components/DividerLine";
 
 export default function Event() {
   const { eventId } = useLocalSearchParams();
@@ -51,7 +52,9 @@ export default function Event() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.title}>{event.eventName}</Text>
           <Text style={styles.subTitle}>👤 {event.eventHost.hostName} is your host</Text>
+          <DividerLine />
           <ItemList eventId={eventId} />
+          <DividerLine />
           <GuestList />
           <Photos />
           {/* <Map /> */}
