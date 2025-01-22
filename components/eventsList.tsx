@@ -57,7 +57,7 @@ const EventsList = () => {
 
   return (
     <SafeAreaView>
-      <ScrollView style={{ marginBottom: 130 }}>
+      <ScrollView style={{ marginBottom: 170 }}>
         {events.map((event, index) => (
           <EventCard key={index} event={event} />
         ))}

@@ -35,7 +35,8 @@ const EventCard = ({
         "https://firebasestorage.googleapis.com/v0/b/eventure-d4129.firebasestorage.app/o/image%20(6)(1).png?alt=media&token=ed9015c1-f1f7-4cb0-8f5e-309997c1a7c1";
       break;
     default:
-      imageUrl = "https://via.placeholder.com/70";
+      imageUrl =
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Pug_-_1_year_Old_%28cropped%29.jpg/596px-Pug_-_1_year_Old_%28cropped%29.jpg";
   }
 
   const router = useRouter();

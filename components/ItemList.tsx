@@ -9,8 +9,14 @@ import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useState, useEffect } from "react";
 import { db, auth } from "@/firebaseConfig";
 
-import { collection, query, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore";
-
+import {
+  collection,
+  query,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 
 const ItemList = ({ eventId }) => {
   const [newItem, setNewItem] = useState("");
@@ -27,22 +33,24 @@ const ItemList = ({ eventId }) => {
     );
     const q = query(eventItemsCollection);
 
-
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const fetchedItems = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        name: doc.data().name,
-        isChecked: doc.data().isChecked,
-        checkedBy: doc.data().checkedBy
-      }));
-      setItems(fetchedItems);
-      setLoading(false);
-    }, (err) => {
-      console.error("Error fetching items:", err);
-      setError("Failed to fetch items");
-      setLoading(false);
-    });
-
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        const fetchedItems = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+          isChecked: doc.data().isChecked,
+          checkedBy: doc.data().checkedBy,
+        }));
+        setItems(fetchedItems);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching items:", err);
+        setError("Failed to fetch items");
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, [eventId]);
@@ -76,7 +84,7 @@ const ItemList = ({ eventId }) => {
       const itemRef = doc(db, "test-events", eventId, "eventItems", itemId);
       await updateDoc(itemRef, {
         isChecked: isChecked,
-        checkedBy: isChecked ? auth.currentUser?.displayName : ""
+        checkedBy: isChecked ? auth.currentUser?.displayName : "",
       });
     } catch (err) {
       console.error("Error updating checkbox:", err);
@@ -88,15 +96,11 @@ const ItemList = ({ eventId }) => {
   if (error) return <Text>{error}</Text>;
 
   return (
-
     <View style={styles.container}>
-      <Text style={styles.inputLabel}>📋 Stuff to bring</Text>
+      <Text style={styles.inputLabel}>📋 Bring stuff</Text>
       <View>
         {items.map((item) => (
-
-          <View
-            style={styles.itemContainer}
-            key={item.id}>
+          <View style={styles.itemContainer} key={item.id}>
             <BouncyCheckbox
               size={25}
               style={styles.checkbox}
@@ -105,7 +109,7 @@ const ItemList = ({ eventId }) => {
               onPress={(isChecked) => handleCheckboxChange(item.id, isChecked)}
             />
 
-            {(item.checkedBy && item.isChecked) ? (
+            {item.checkedBy && item.isChecked ? (
               <Text style={styles.checkedItem}>
                 {item.name} - {item.checkedBy}
               </Text>
@@ -129,17 +133,13 @@ const ItemList = ({ eventId }) => {
           onSubmitEditing={handleAddItem}
           value={newItem}
         />
-        <TouchableOpacity
-          onPress={handleAddItem}
-          style={styles.button}>
+        <TouchableOpacity onPress={handleAddItem} style={styles.button}>
           <Text style={styles.buttonText}>Add it to the list</Text>
         </TouchableOpacity>
-
       </View>
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -195,5 +195,3 @@ const styles = StyleSheet.create({
 });
 
 export default ItemList;
-
-

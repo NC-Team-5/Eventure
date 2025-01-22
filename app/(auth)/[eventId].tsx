@@ -56,6 +56,7 @@ export default function Event() {
           </Text>
           <DividerLine />
           <ItemList eventId={eventId} />
+          <DividerLine />
           <GuestList eventId={eventId} />
           <DividerLine />
           <Photos eventId={eventId} />
