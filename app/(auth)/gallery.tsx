@@ -8,28 +8,44 @@ import {
   View,
   Modal,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 const PhotoGallery: React.FC = () => {
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const router = useRouter();
+  const { eventId } = useLocalSearchParams();
 
   useEffect(() => {
-    const q = query(collection(db, "gallery"), orderBy("timestamp", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const urls = snapshot.docs.map((doc) => doc.data().url as string);
-      setPhotoUrls(urls);
-    });
+    if (!eventId || typeof eventId !== "string") {
+      console.error("Invalid or missing eventId:", eventId);
+      return;
+    }
+
+    const q = query(
+      collection(db, "test-events", eventId, "gallery"),
+      orderBy("timestamp", "desc")
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const urls = snapshot.docs.map((doc) => doc.data().url as string);
+        setPhotoUrls(urls);
+      },
+      (error) => {
+        console.error("Error fetching gallery data:", error);
+      }
+    );
 
     return () => unsubscribe();
-  }, []);
+  }, [eventId]);
 
   const backToEventPage = () => {
-    router.push(`/event`);
+    router.replace(`/(auth)/${eventId}`);
   };
 
   return (
@@ -92,14 +108,13 @@ export default PhotoGallery;
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
     margin: 10,
   },
   image: {
-    width: 80, 
+    width: 80,
     aspectRatio: 1,
-    margin: 5, 
+    margin: 5,
     borderRadius: 10,
   },
   text: {
