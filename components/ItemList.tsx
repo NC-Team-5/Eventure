@@ -115,7 +115,7 @@ const ItemList = ({ eventId }) => {
         <TouchableOpacity
           onPress={handleAddItem}
           style={styles.button}>
-          <Text style={styles.buttonText}>➕</Text>
+          <Text style={styles.buttonText}>Add it to the list</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -151,9 +151,6 @@ const styles = StyleSheet.create({
     color: "#666",
     textDecorationLine: "line-through",
   },
-  addItemContainer: {
-    marginTop: 10,
-  },
   input: {
     height: 50,
     borderWidth: 1,
@@ -170,10 +167,9 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    marginLeft: 10,
   },
   buttonText: {
-    color: "#fff",
+    color: "#ffffff",
     fontSize: 16,
     fontWeight: "bold",
   },
