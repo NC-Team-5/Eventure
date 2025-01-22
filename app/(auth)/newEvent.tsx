@@ -220,7 +220,7 @@ export default function EventCreation() {
             contentContainerStyle={{ flexGrow: 1, paddingBottom: 50 }}
             keyboardShouldPersistTaps="handled"
           >
-            <View>
+            <View style={styles.spaceContainer}>
               <Text style={styles.title}>🎟️ Create Your Next Event</Text>
 
               <Text style={styles.sectionTitle}>🎂 Event Type</Text>
@@ -333,6 +333,11 @@ export default function EventCreation() {
 const styles = StyleSheet.create({
   container: {
     padding: 5,
+    backgroundColor: "#F9F9F9",
+    flexGrow: 1,
+  },
+  spaceContainer: {
+    padding: 20,
     backgroundColor: "#F9F9F9",
     flexGrow: 1,
   },
