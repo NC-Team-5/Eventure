@@ -1,11 +1,12 @@
 import { ScrollView, Text, View, StyleSheet, SafeAreaView } from "react-native";
 import { useEffect, useState } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import ItemList from "@/components/ItemList";
 import GuestList from "@/components/guestList";
 import Photos from "@/components/camera";
+import DividerLine from "@/components/DividerLine";
 
 export default function Event() {
   const { eventId } = useLocalSearchParams();
@@ -18,6 +19,7 @@ export default function Event() {
       if (!eventId) {
         setError("No event ID provided");
         setLoading(false);
+        router.back()
         return;
       }
 
@@ -49,7 +51,10 @@ export default function Event() {
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.title}>{event.eventName}</Text>
+          <Text style={styles.subTitle}>👤 {event.eventHost.hostName} is your host</Text>
+          <DividerLine />
           <ItemList eventId={eventId} />
+          <DividerLine />
           <GuestList />
           <Photos eventId={eventId}/>
           {/* <Map /> */}
@@ -70,8 +75,16 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
-    fontSize: 30,
+    color: "#4CA19E",
+    fontSize: 28,
     textAlign: "center",
     padding: 20,
+    paddingBottom: 10,
+  },
+  subTitle: {
+    fontWeight: "bold",
+    color: "#a9a591",
+    fontSize: 24,
+    textAlign: "center",
   },
 });

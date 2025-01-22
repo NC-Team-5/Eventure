@@ -2,32 +2,30 @@ import {
   Text,
   View,
   TouchableOpacity,
-  StyleSheet,
   TextInput,
+  StyleSheet,
 } from "react-native";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useState, useEffect } from "react";
 import { db, auth } from "@/firebaseConfig";
-import { collection, query, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore"; // Firestore real-time listener
+import { collection, query, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore";
 
 const ItemList = ({ eventId }) => {
-  const [isAddingItem, setAddingItem] = useState(false);
   const [newItem, setNewItem] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch items from Firestore with real-time listener
   useEffect(() => {
     const eventItemsCollection = collection(db, "test-events", eventId, "eventItems");
     const q = query(eventItemsCollection);
 
-    // Real-time listener
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const fetchedItems = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
         isChecked: doc.data().isChecked,
+        checkedBy: doc.data().checkedBy
       }));
       setItems(fetchedItems);
       setLoading(false);
@@ -37,14 +35,8 @@ const ItemList = ({ eventId }) => {
       setLoading(false);
     });
 
-    // Cleanup on component unmount
     return () => unsubscribe();
   }, [eventId]);
-
-  const handlePress = () => {
-    console.log("Add Item");
-    setAddingItem(true);
-  };
 
   const handleAddItem = async () => {
     if (newItem.trim() !== "") {
@@ -58,7 +50,6 @@ const ItemList = ({ eventId }) => {
         });
 
         setNewItem("");
-        setAddingItem(false);
       } catch (err) {
         console.error("Error adding item:", err);
         setError("Failed to add item");
@@ -71,6 +62,7 @@ const ItemList = ({ eventId }) => {
       const itemRef = doc(db, "test-events", eventId, "eventItems", itemId);
       await updateDoc(itemRef, {
         isChecked: isChecked,
+        checkedBy: isChecked ? auth.currentUser?.displayName : ""
       });
     } catch (err) {
       console.error("Error updating checkbox:", err);
@@ -82,123 +74,106 @@ const ItemList = ({ eventId }) => {
   if (error) return <Text>{error}</Text>;
 
   return (
-    <>
-      <View style={card.box}>
-        <View>
-          {items.map((item) => (
-            <View style={{ flexDirection: "row" }} key={item.id}>
-              <Text style={textBox.box}>{item.name}</Text>
-              <BouncyCheckbox
-                size={35}
-                style={{ marginLeft: 10 }}
-                isChecked={item.isChecked}
-                onPress={(isChecked) => handleCheckboxChange(item.id, isChecked)}
-              />
-            </View>
-          ))}
-        </View>
-
-        {isAddingItem ? (
+    <View style={styles.container}>
+      <Text style={styles.inputLabel}>📋 Stuff to bring</Text>
+      <View>
+        {items.map((item) => (
           <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginTop: 10,
-            }}
-          >
-            <TextInput
-              style={card.textField}
-              placeholder="Enter new item"
-              value={newItem}
-              onChangeText={setNewItem}
+            style={styles.itemContainer}
+            key={item.id}>
+            <BouncyCheckbox
+              size={25}
+              style={styles.checkbox}
+              fillColor="#4CA19E"
+              isChecked={item.isChecked}
+              onPress={(isChecked) => handleCheckboxChange(item.id, isChecked)}
             />
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#000",
-                borderRadius: 8,
-                padding: 12,
-                margin: 5,
-              }}
-              onPress={handleAddItem}
-            >
-              <Text style={{ fontSize: 13, color: "#fff" }}>Add</Text>
-            </TouchableOpacity>
+            {(item.checkedBy && item.isChecked) ? (
+              <Text style={styles.checkedItem}>
+                {item.name} - {item.checkedBy}
+              </Text>
+            ) : (
+              <Text style={styles.itemText}>{item.name}</Text>
+            )}
           </View>
-        ) : (
-          <TouchableOpacity
-            onPress={handlePress}
-            style={{ marginTop: 10, width: "77.5%" }}
-          >
-            <Text style={card.box2}>Add Item</Text>
-          </TouchableOpacity>
-        )}
+        ))}
       </View>
-    </>
+
+      <View style={styles.addItemContainer}>
+        <TextInput
+          placeholder="What did you forget?"
+          onChangeText={setNewItem}
+          style={styles.input}
+          autoCapitalize="words"
+          maxLength={75}
+          returnKeyType="next"
+          enablesReturnKeyAutomatically={true}
+          blurOnSubmit={false}
+          onSubmitEditing={handleAddItem}
+          value={newItem}
+        />
+        <TouchableOpacity
+          onPress={handleAddItem}
+          style={styles.button}>
+          <Text style={styles.buttonText}>Add it to the list</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
-export default ItemList;
-
-const card = StyleSheet.create({
-  box: {
-    alignContent: "center",
-    borderColor: "#ccc",
-    borderWidth: 1,
-    backgroundColor: "#4CA19E",
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: 0,
+    padding: 25,
+    backgroundColor: "#F9F9F9",
+    flex: 1,
+  },
+  itemContainer: {
+    flexDirection: "row",
+    alignContent: "flex-start",
+    marginBottom: 15,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
     marginBottom: 20,
-    padding: 5,
-    marginHorizontal: 35,
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    flexDirection: "column",
-    justifyContent: "flex-start",
   },
-  box2: {
-    backgroundColor: "#FFFFFF",
+  checkbox: {
+    marginLeft: 10,
+  },
+  itemText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  checkedItem: {
+    fontSize: 16,
+    color: "#666",
+    textDecorationLine: "line-through",
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#4CA19E",
     borderRadius: 8,
-    padding: 12,
-    margin: 5,
-    fontSize: 13,
-    width: "100%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 5,
+    fontSize: 16,
+    color: "#333",
+    flex: 1,
   },
-  textField: {
-    justifyContent: "center",
+  button: {
+    backgroundColor: "#4CA19E",
+    padding: 15,
+    borderRadius: 8,
     alignItems: "center",
-    textAlign: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    padding: 12,
-    margin: 5,
-    fontSize: 13,
-    width: "77.5%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
-const textBox = StyleSheet.create({
-  box: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    padding: 12,
-    margin: 5,
-    fontSize: 13,
-    width: "78%",
-    height: 40,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-  },
-});
-
+export default ItemList;
 

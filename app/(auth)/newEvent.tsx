@@ -228,10 +228,9 @@ export default function EventCreation() {
                 {["BBQ", "House Party", "Camping Trip", "Graduation"].map(
                   (eventType) => (
                     <View key={eventType} style={styles.checkboxRow}>
-                      <Text style={styles.checkboxLabel}>{eventType}</Text>
                       <View>
                         <BouncyCheckbox
-                          size={35}
+                          size={18}
                           style={styles.checkbox}
                           isChecked={selectedEventType === eventType}
                           onPress={() => handleEventTypeChange(eventType)}
@@ -243,6 +242,7 @@ export default function EventCreation() {
                           innerIconStyle={{ borderRadius: 5 }}
                         />
                       </View>
+                      <Text style={styles.checkboxLabel}>{eventType}</Text>
                     </View>
                   )
                 )}
