@@ -7,7 +7,8 @@ import {
   Linking,
   Button,
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { db } from "@/firebaseConfig";
 import {
   collection,
@@ -17,36 +18,48 @@ import {
   setDoc,
   doc,
   onSnapshot,
+  FieldValue,
+  arrayUnion,
 } from "firebase/firestore";
+import {
+  useRouter,
+  useLocalSearchParams,
+  useGlobalSearchParams,
+} from "expo-router";
 
 //TO DO
 // Get list of attendees from the event in Firebase, and setGuestList array
 // add to setNewGuest to add it to the setGuestList array
 // upload the new guest list to the Firebase event
 
-const GuestList = () => {
+const GuestList = ({ eventId }) => {
+  //const { eventId } = useGlobalSearchParams();
   const [isAddingGuest, setAddingGuest] = useState(false);
   const [newGuest, setNewGuest] = useState("");
   const [guestList, setGuestList] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  //const [eventId, setEventId] = useState(useGlobalSearchParams);
   useEffect(() => {
-    fetchEventGuestList();
-  }, [setGuestList]);
+    const docRef = doc(db, "test-events", eventId);
+    const guestListCollection = getDoc(docRef)
+      .then((doc) => {
+        return doc.data().eventGuests;
+      })
+      .then((result) => {
+        setGuestList(result);
+      });
+  }, [eventId]);
 
-  const docRef = doc(db, "test-events", "FaOYgldrsQjK4aHdq8vH");
-
-  const fetchEventGuestList = () => {
-    getDoc(docRef).then((doc) => {
-      setGuestList(doc.data().eventGuests);
+  /*   const uploadGuest = () => {
+    console.log(guestList, "<---guestList in uploadGuest");
+    const docRef = doc(db, "test-events", eventId);
+    docRef.update({
+      arrayField: db.FieldValue.arrayUnion(newGuest),
     });
-  };
-
-  /*   const uploadGuest = (guestList) => {
     setDoc(docRef, { guestList }, { merge: true });
-  };
- */
+  }; */
+
   const handlePress = () => {
     console.log("Add Guest");
     setAddingGuest(true);
@@ -55,12 +68,37 @@ const GuestList = () => {
   const handleAddGuest = () => {
     if (newGuest.trim() !== "") {
       console.log("New Guest:", newGuest);
+
       setNewGuest("");
       setAddingGuest(false);
       setGuestList([...guestList, newGuest]);
-      //   uploadGuest(guestList);
     }
   };
+
+  /*   const handleAddGuest = async () => {
+    if (newGuest.trim() !== "") {
+      try {
+        const guestListCollection = collection(
+          db,
+          "test-events",
+          eventId,
+          "eventItems"
+        );
+        await addDoc(guestListCollection, {
+          name: newItem,
+          isChecked: false,
+          checkedBy: "",
+          addedBy: auth.currentUser?.displayName,
+        });
+
+        setNewItem("");
+        setAddingItem(false);
+      } catch (err) {
+        console.error("Error adding item:", err);
+        setError("Failed to add item");
+      }
+    }
+  }; */
 
   const sendEmail = (guest) => {
     const recipient = guest;
