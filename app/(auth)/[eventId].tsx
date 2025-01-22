@@ -19,7 +19,7 @@ export default function Event() {
       if (!eventId) {
         setError("No event ID provided");
         setLoading(false);
-        router.back()
+        router.back();
         return;
       }
 
@@ -51,13 +51,14 @@ export default function Event() {
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.title}>{event.eventName}</Text>
-          <Text style={styles.subTitle}>👤 {event.eventHost.hostName} is your host</Text>
+          <Text style={styles.subTitle}>
+            👤 {event.eventHost.hostName} is your host
+          </Text>
           <DividerLine />
           <ItemList eventId={eventId} />
           <GuestList eventId={eventId} />
           <DividerLine />
-          <GuestList />
-          <Photos eventId={eventId}/>
+          <Photos eventId={eventId} />
           {/* <Map /> */}
         </ScrollView>
       </View>
@@ -89,6 +90,5 @@ const styles = StyleSheet.create({
     color: "#a9a591",
     fontSize: 24,
     textAlign: "center",
-
   },
 });
