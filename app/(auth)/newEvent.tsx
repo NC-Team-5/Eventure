@@ -21,6 +21,7 @@ import { collection, addDoc, setDoc, doc } from "firebase/firestore";
 import { ThemedText } from "@/components/ThemedText";
 
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { router } from "expo-router";
 
 export default function EventCreation() {
   const [eventName, setEventName] = useState("");
@@ -168,6 +169,8 @@ export default function EventCreation() {
       setSelectedLocation(null);
       setSearchQuery("");
       setSelectedEventType(null);
+      const eventId = eventDocRef.id
+      router.replace(`/(auth)/${eventId}`)
     }
   };
 
