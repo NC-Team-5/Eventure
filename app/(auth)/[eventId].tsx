@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, StyleSheet, SafeAreaView } from "react-native";
+import { ScrollView, Text, View, StyleSheet, SafeAreaView, Linking, Platform } from "react-native";
 import { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
@@ -43,6 +43,21 @@ export default function Event() {
     fetchEvent();
   }, [eventId]);
 
+  const openMaps = (address) => {
+    const encodedAddress = encodeURIComponent(address);
+    let url;
+
+    if (Platform.OS === "ios") {
+      url = `http://maps.apple.com/?q=${encodedAddress}`;
+    } else {
+      url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+    }
+
+    Linking.openURL(url).catch((err) =>
+      console.error("Failed to open maps app:", err)
+    );
+  };
+
   if (loading) return <Text>Loading...</Text>;
   if (error) return <Text>{error}</Text>;
 
@@ -54,7 +69,16 @@ export default function Event() {
           <Text style={styles.subTitle}>
             👤 {event.eventHost.hostName} is your host
           </Text>
-          <DividerLine />
+          <Text style={styles.location}>
+            📍{" "}
+            <Text
+              style={{ textDecorationLine: "underline" }}
+              onPress={() => openMaps(event.eventLocation.fullAddress)}
+            >
+              {event.eventLocation.fullAddress}
+            </Text>
+          </Text>
+          <DividerLine style={styles.divider} />
           <ItemList eventId={eventId} />
           <DividerLine />
           <GuestList eventId={eventId} />
@@ -79,7 +103,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
-
     color: "#4CA19E",
     fontSize: 28,
     textAlign: "center",
@@ -90,6 +113,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#a9a591",
     fontSize: 24,
+    textAlign: "center",
+    paddingBottom: 10,
+  },
+  location: {
+    margin: 10,
+    fontWeight: "400",
+    color: "#a9a591",
+    fontSize: 20,
     textAlign: "center",
   },
 });

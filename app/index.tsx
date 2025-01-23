@@ -8,8 +8,6 @@ import {
   SafeAreaView,
   TouchableWithoutFeedback,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import React from "react";
 import {
@@ -18,7 +16,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { app } from "../firebaseConfig";
-import { useRouter, Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { Image } from "react-native";
 import logo from "../assets/images/Designer.png";
 
@@ -106,7 +104,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#F8F8F8",
     flex: 1,
-    marginTop: 50,
+    marginTop: 30,
   },
   logo: {
     width: 250,
@@ -117,7 +115,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 20,
-    fontWeight: "400",
+    fontWeight: "bold",
     color: "#4CA19E",
     marginBottom: -10,
     textAlign: "center",
@@ -138,7 +136,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 20,
   },
   buttonText: {
     color: "#fff",
@@ -154,7 +151,6 @@ const styles = StyleSheet.create({
   signupLinkText: {
     fontSize: 16,
     color: "#4CA19E",
-    marginTop: 20,
     textAlign: "left",
   },
 });

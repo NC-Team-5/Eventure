@@ -1,8 +1,9 @@
-import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert, SafeAreaView } from "react-native";
+import { Image, View, StyleSheet, TextInput, TouchableOpacity, Text, Alert, SafeAreaView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import React, { useState, useEffect } from "react";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { app } from "../firebaseConfig";
 import { useRouter } from "expo-router";
+import logo from "../assets/images/Designer.png";
 
 export default function SignUpForm() {
   const [email, setEmail] = useState("");
@@ -38,7 +39,7 @@ export default function SignUpForm() {
   };
 
   const handleSubmit = () => {
-    setShowErrors(true); // Show errors when trying to submit the form
+    setShowErrors(true);
 
     if (isFormValid) {
       const auth = getAuth(app);
@@ -66,50 +67,53 @@ export default function SignUpForm() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Create your account</Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.container}>
+          <Image source={logo} style={styles.logo} />
+          <Text style={styles.title}>Create your account</Text>
 
-        <TextInput
-          keyboardType="email-address"
-          style={styles.input}
-          onChangeText={setEmail}
-          value={email}
-          placeholder="Enter email address"
-        />
+          <TextInput
+            keyboardType="email-address"
+            style={styles.input}
+            onChangeText={setEmail}
+            value={email}
+            placeholder="Enter email address"
+          />
 
-        <TextInput
-          style={styles.input}
-          onChangeText={setPassword}
-          value={password}
-          secureTextEntry
-          placeholder="Choose a password"
-        />
+          <TextInput
+            style={styles.input}
+            onChangeText={setPassword}
+            value={password}
+            secureTextEntry
+            placeholder="Choose a password"
+          />
 
-        <TextInput
-          style={styles.input}
-          onChangeText={setDisplayName}
-          autoCapitalize="words"
-          value={displayName}
-          placeholder="Choose display name"
-        />
+          <TextInput
+            style={styles.input}
+            onChangeText={setDisplayName}
+            autoCapitalize="words"
+            value={displayName}
+            placeholder="Choose display name"
+          />
 
-        <TouchableOpacity
-          onPress={handleSubmit}
-          style={[styles.button, !isFormValid && styles.buttonDisabled]}
-          disabled={!isFormValid}
-        >
-          <Text style={styles.buttonText}>Sign Up</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSubmit}
+            style={[styles.button, !isFormValid && styles.buttonDisabled]}
+            disabled={!isFormValid}
+          >
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
 
-        {showErrors && Object.values(errors).map((error, index) => (
-          <Text key={index} style={styles.error}>
-            {error}
-          </Text>
-        ))}
-        <TouchableOpacity onPress={() => router.back()} style={styles.loginLink}>
-          <Text style={styles.loginLinkText}>Already have an account? Log In</Text>
-        </TouchableOpacity>
-      </View>
+          {showErrors && Object.values(errors).map((error, index) => (
+            <Text key={index} style={styles.error}>
+              {error}
+            </Text>
+          ))}
+          <TouchableOpacity onPress={() => router.back()} style={styles.loginLink}>
+            <Text style={styles.loginLinkText}>Already have an account? Log In</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }
@@ -117,11 +121,18 @@ export default function SignUpForm() {
 const styles = StyleSheet.create({
   container: {
     padding: 30,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#F8F8F8",
     flex: 1,
   },
+  logo: {
+    width: 250,
+    height: 250,
+    alignSelf: "center",
+    marginTop: -10,
+    marginBottom: -50,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#4CA19E",
     marginBottom: 20,
@@ -131,6 +142,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderWidth: 1,
     borderColor: "#4CA19E",
+    backgroundColor: "#F8FFFC",
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 15,
@@ -142,7 +154,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 5,
   },
   buttonDisabled: {
     backgroundColor: "#A0D3D0",
@@ -160,7 +172,6 @@ const styles = StyleSheet.create({
   loginLink: {
     fontSize: 16,
     color: "#4CA19E",
-    marginTop: 20,
     textAlign: "left",
   },
   loginLinkText: {
