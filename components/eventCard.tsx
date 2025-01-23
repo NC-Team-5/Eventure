@@ -4,6 +4,29 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter, Link } from "expo-router";
 import { useState } from "react";
 
+
+const formatDate = (dateString) => {
+  const [datePart, timePart] = dateString.split(", ");
+  const [day, month, year] = datePart.split("/");
+  const [hours, minutes, seconds] = timePart.split(":").map(Number);
+
+  const date = new Date(year, month - 1, day, hours, minutes, seconds);
+
+  const formattedTime = date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const formattedDate = date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  return `${formattedDate}, ${formattedTime}`;
+};
+
 const EventCard = ({
   event,
 }: {
@@ -65,13 +88,14 @@ const EventCard = ({
               />{" "}
             </Text>
             <Text style={textBox.box2}>{event.numOfGuests}</Text>
-            <Text style={textBox.box}>{event.date}</Text>
+            <Text style={textBox.box}>{formatDate(event.date)}</Text>
           </View>
         </View>
       </View>
     </TouchableOpacity>
   );
 };
+
 
 const card = StyleSheet.create({
   box: {
@@ -84,7 +108,6 @@ const card = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#F8FFFC",
 
-    // iOS Drop Shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
