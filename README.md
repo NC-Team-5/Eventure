@@ -1,6 +1,30 @@
-# Welcome to your Expo app 👋
+# Welcome to Eventure 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Eventure is a collaborative event planning app - create an event, invite your mates, and share a collaborative list so that everyone knows who's bringing what. Share your memories by adding photos to the event gallery.
+
+This app is a group project app, built as part of the Northcoders JavaScript bootcamp, to showcase skills learnt throughout the course, as well as to learn new technologies not covered in the curriculum.
+
+This project was created by:
+
+- [Bailey Howarth](https://github.com/BaileyCrow)
+- [Sean Viron](https://github.com/SViron00)
+- [Harry Manley](https://github.com/HarryLFManley)
+- [Alex Kontis](https://github.com/lexkon)
+- [Christian Poed](https://github.com/chris-poed)
+
+## Key features
+
+- Real-time collaborative event item list (you'll see other attendees tick items from the list in real-time)
+- Shared photo gallery
+- Fully authenticated app using Firebase Auth
+- Complete Profile Management page with profile pic updates and email/password management
+- Integrated Maps for event location, opening to device native maps app
+- Invite sharing through Email and Whatsapp
+
+## Tech-stack
+
+- Expo/React-Native/TypeScript
+- Firebase
 
 ## Get started
 
@@ -24,27 +48,3 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
