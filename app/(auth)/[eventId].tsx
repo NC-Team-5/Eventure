@@ -8,6 +8,26 @@ import GuestList from "@/components/guestList";
 import Photos from "@/components/camera";
 import DividerLine from "@/components/DividerLine";
 
+const formatDate = (isoString) => {
+  const date = new Date(isoString);
+
+  // Format date as DD/MM/YYYY
+  const formattedDate = date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  // Format time in 12-hour format with AM/PM
+  const formattedTime = date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return `${formattedDate}, ${formattedTime}`;
+};
+
 export default function Event() {
   const { eventId } = useLocalSearchParams();
   const [event, setEvent] = useState(null);
@@ -78,6 +98,7 @@ export default function Event() {
               {event.eventLocation.fullAddress}
             </Text>
           </Text>
+          <Text style={styles.location}>📅 {formatDate(event.eventDate)}</Text>
           <DividerLine style={styles.divider} />
           <ItemList eventId={eventId} />
           <DividerLine />
@@ -112,15 +133,15 @@ const styles = StyleSheet.create({
   subTitle: {
     fontWeight: "bold",
     color: "#a9a591",
-    fontSize: 24,
+    fontSize: 20,
     textAlign: "center",
     paddingBottom: 10,
   },
   location: {
     margin: 10,
-    fontWeight: "400",
+    fontWeight: "bold",
     color: "#a9a591",
-    fontSize: 20,
+    fontSize: 16,
     textAlign: "center",
   },
 });
